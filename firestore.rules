@@ -1,0 +1,27 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null && request.auth.token.email != null; }
+    function myEmail() { return request.auth.token.email.lower(); }
+    function isMember(fid) {
+      return signedIn() && myEmail() in get(/databases/$(database)/documents/families/$(fid)).data.memberEmails;
+    }
+
+    match /families/{fid} {
+      allow read: if signedIn() && myEmail() in resource.data.memberEmails;
+      allow create: if signedIn() && request.resource.data.owner == request.auth.uid
+                    && myEmail() in request.resource.data.memberEmails;
+      allow update: if isMember(fid);
+      allow delete: if signedIn() && resource.data.owner == request.auth.uid;
+
+      // shared items are visible to the whole family; personal items only to their owner
+      match /{kind}/{id} {
+        allow read: if isMember(fid) && (resource == null || resource.data.shared == true
+                                          || resource.data.owner == request.auth.uid);
+        allow create: if isMember(fid) && request.resource.data.owner == request.auth.uid;
+        allow update, delete: if isMember(fid) && (resource.data.shared == true
+                                                   || resource.data.owner == request.auth.uid);
+      }
+    }
+  }
+}

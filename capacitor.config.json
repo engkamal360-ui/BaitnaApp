@@ -1,0 +1,9 @@
+{
+  "appId": "com.baitna.family",
+  "appName": "بيتنا",
+  "webDir": "www",
+  "android": { "backgroundColor": "#F4F3EF" },
+  "plugins": {
+    "LocalNotifications": { "smallIcon": "ic_stat_baitna", "iconColor": "#0F766E" }
+  }
+}
