@@ -1,10 +1,12 @@
 import { DCLogic } from './runtime.js';
 import * as S from './sync.js';
+import { shareText, localAlert } from './native.js';
 import { speak as nSpeak, scheduleTimer, cancelTimer, syncReminders, biometricUnlock, readImage, setupNative } from './native.js';
 
 const STORE = 'baitna.v1';
+const DOWNLOAD_URL = 'https://github.com/engkamal360-ui/BaitnaApp/releases/latest/download/baitna.apk';
 const PERSIST = ['lang', 'theme', 'userName', 'timers', 'presets', 'appts', 'taken', 'shop', 'history', 'histMonth', 'budget', 'shopView',
-  'freq', 'lastQty', 'meds', 'records', 'cards', 'medWho', 'dependents'];
+  'freq', 'lastQty', 'meds', 'records', 'cards', 'medWho', 'dependents', 'famPref', 'seenInvites'];
 const stable = (o) => JSON.stringify(o, Object.keys(o).sort());
 const sjson = (o) => JSON.stringify(o, (k, v) => (v && typeof v === 'object' && !Array.isArray(v)) ? Object.keys(v).sort().reduce((a, kk) => { a[kk] = v[kk]; return a; }, {}) : v);
 const todayISO = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
@@ -40,6 +42,7 @@ export default class Component extends DCLogic {
       history: {}, histMonth: monthKey(), userName: '', cards: [], cardForm: null, dependents: [],
       auth: null, authReady: !S.enabled, family: null, famReady: false, online: navigator.onLine,
       af: { email: '', pw: '', name: '', mode: 'in' }, afErr: '', afBusy: false, famName: '', inviteDraft: '', depDraft: '',
+      famPref: null, famInvites: [], seenInvites: [], joinCode: '', joinBusy: false, inviteCode: '',
       budget: 8000, showBreak: false, spendOpen: false, shopFilter: 'all',
       freq: { milk: 12, bread: 10, tomato: 9, eggs: 8, chicken: 6, potato: 5, mince: 4, onion: 4, cucumber: 3, rice: 3, cheese: 3, oil: 2, lemon: 2, beef: 2, tea: 2, fish: 1, carrot: 1, cumin: 1, detergent: 1, panadol: 1 },
       lastQty: {}, qSel: null, qQty: 1,
@@ -47,7 +50,7 @@ export default class Component extends DCLogic {
       meds: [],
       records: [],
       mf: { name: '', dose: '', times: ['09:00'], note: '', who: 'me', shared: false },
-      rf: { type: 'lab', title: '', date: '', result: '', who: 'me', shared: false },
+      rf: { type: 'visit', title: '', date: '', result: '', who: 'me', shared: true },
       shopView: 'list', editId: null, edit: { name: '', desc: '', cat: 'super', price: '' },
       draft: '', draftDesc: '', draftCat: null, draftPrice: '', priceFor: null, priceDraft: '', toast: ''
     };
@@ -78,10 +81,30 @@ export default class Component extends DCLogic {
       if (!user) { this.authUser = null; this.setState({ auth: null, authReady: true, family: null, famReady: false }); return; }
       this.authUser = { uid: user.uid, email: (user.email || '').toLowerCase(), name: user.displayName || '' };
       this.setState({ auth: this.authUser, authReady: true, famReady: false });
-      this.famUnsub = S.watchFamily(user.email, (fam) => this.onFamily(fam));
+      this.famUnsub = S.watchFamilies(user.email, (list) => this.onFamilies(list));
     });
   }
   stopKinds() { this.unsubs.forEach((u) => u()); this.unsubs = []; this.fid = null; this.synced = {}; this.ready = {}; }
+  onFamilies(list) {
+    const a = this.authUser; if (!a) return;
+    const mine = (f) => (f.people || []).some((p) => p.id === a.uid);
+    let cur = list.find((f) => f.id === this.state.famPref) || list.find(mine) || (list.length === 1 ? list[0] : null);
+    const invites = list.filter((f) => f !== cur && !mine(f));
+    const fresh = invites.filter((f) => !(this.state.seenInvites || []).includes(f.id));
+    if (fresh.length) {
+      const ar = this.lang() === 'ar';
+      fresh.forEach((f) => localAlert(ar ? 'دعوة للانضمام إلى ' + f.name : 'Invitation to join ' + f.name, ar ? 'افتح «بيتنا» واضغط «انضمام»' : 'Open Baitna and tap Join'));
+      this.setState({ seenInvites: [...(this.state.seenInvites || []), ...fresh.map((f) => f.id)] });
+    }
+    this.setState({ famInvites: invites });
+    this.onFamily(cur);
+  }
+  acceptInvite(f) {
+    const a = this.authUser, old = this.state.family;
+    this.setState({ famPref: f.id });
+    this.onFamily(f);
+    if (old && old.id !== f.id) S.leaveFamily(old, a.uid, a.email).catch(() => {});
+  }
   onFamily(fam) {
     this.setState({ family: fam, famReady: true });
     if (!fam) { this.stopKinds(); return; }
@@ -122,7 +145,7 @@ export default class Component extends DCLogic {
       const [h, mi] = tm.split(':').map(Number);
       list.push({ repeatDaily: true, hour: h, minute: mi, channel: 'meds', title: (ar ? 'موعد الدواء: ' : 'Medicine time: ') + tx(m.name), body: tx(m.dose) + (tx(m.note) ? ' — ' + tx(m.note) : '') });
     }));
-    s.appts.forEach((a) => {
+    s.appts.concat((s.records || []).filter((r) => r.d && r.d >= todayISO()).map((r) => ({ d: r.d, title: r.title }))).forEach((a) => {
       if (!a.d) return;
       const at = new Date(a.d + 'T09:00').getTime();
       list.push({ at: at - 86400000, channel: 'reminders', title: (ar ? 'غداً: ' : 'Tomorrow: ') + tx(a.title), body: ar ? 'تذكير بموعد الغد' : 'Reminder for tomorrow' });
@@ -262,7 +285,7 @@ export default class Component extends DCLogic {
       medName: L('اسم الدواء', 'Medicine name'), medNamePh: L('مثلاً: كونكور ٥', 'e.g. Concor 5'), dose: L('الجرعة', 'Dose'), dosePh: L('مثلاً: ١ قرص', 'e.g. 1 tablet'),
       times: L('المواعيد اليومية', 'Daily times'), addTime: L('+ موعد آخر', '+ Another time'), medNote: L('ملاحظة', 'Note'), medNotePh: L('مثلاً: بعد الأكل', 'e.g. after food'),
       stopMed: L('أوقفتُ هذا الدواء', 'I stopped this medicine'), stopHint: L('سيختفي من الجدول ويبقى في السجل الطبي', 'It leaves the schedule but stays in the medical record'),
-      recDate: L('التاريخ', 'Date'), result: L('النتيجة / ملاحظات', 'Result / notes'), resultPh: L('مثلاً: النتائج طبيعية', 'e.g. all normal'),
+      recDate: L('التاريخ (إن كان قادماً يظهر أيضاً في المواعيد)', 'Date (if upcoming, it also shows in appointments)'), result: L('النتيجة / ملاحظات', 'Result / notes'), resultPh: L('مثلاً: النتائج طبيعية', 'e.g. all normal'),
       attach: L('إرفاق صورة أو PDF', 'Attach a photo or PDF'),
       addCard: L('+ إضافة بطاقة', '+ Add a card'), noCards: L('لم تُضف أي بطاقة بعد', 'No cards yet'), cardType: L('نوع البطاقة', 'Card type'),
       cardTypePh: L('أو اكتب نوعاً آخر', 'or type another'), cardNum: L('الرقم', 'Number'), cardExp: L('تاريخ الانتهاء (اختياري)', 'Expiry date (optional)'),
@@ -283,6 +306,10 @@ export default class Component extends DCLogic {
       depHint: L('الأطفال ومن لا يملك هاتفاً: أضفهم بالاسم ليظهروا في خيارات «لمن»', 'Children or anyone without a phone: add them by name for the “For” options'),
       localNote: L('المشاركة غير مفعّلة في هذه النسخة: البيانات محفوظة على هذا الهاتف فقط', 'Sharing is not enabled in this build: data stays on this phone'),
       budgetLbl: L('ميزانية الشهر (ج.م)', 'Monthly budget (EGP)'),
+      joinTitle: L('الانضمام بكود', 'Join with a code'), joinPh: L('مثلاً: ABCD-2345', 'e.g. ABCD-2345'), joinBtn: L('انضمام', 'Join'),
+      joinHint: L('اطلب الكود من أحد أفراد أسرتك (من الإعدادات › مشاركة دعوة)', 'Ask a family member for the code (Settings › Share invitation)'),
+      shareInviteBtn: L('مشاركة دعوة (واتساب وغيره)', 'Share invitation (WhatsApp, etc.)'), inviteCodeLbl: L('كود الأسرة:', 'Family code:'),
+      orEmail: L('أو أضف بريده مباشرة:', 'Or add their email directly:'), decline: L('رفض', 'Decline'), invitesTitle: L('دعوات', 'Invitations'),
       quickPick: L('اختيار سريع', 'Quick pick'), quickHint: L('الأكثر شراءً أولاً', 'Most bought first'), addPh: L('أضف صنفاً… مثلاً: ١ كجم كفتة', 'Add an item… e.g. 1 kg kofta'), add: L('إضافة', 'Add'),
       willGo: L('سيُضاف إلى:', 'Goes to:'), change: L('— يمكنك تغييره', '— tap to change'),
       pricePh: L('السعر المتوقع (اختياري)', 'Expected price (optional)'), bought: L('تم الشراء', 'Bought'), byLbl: L('أضافه:', 'Added by:'),
@@ -381,14 +408,22 @@ export default class Component extends DCLogic {
       bCls: x.shared ? 'b-s' : 'b-p', bTxt: x.shared ? L('مشترك', 'Shared') : L('شخصي', 'Personal'),
       tileCls: 'tile cat-' + x.cat, icon: catIcon[x.cat], isMed: x.cat === 'med'
     });
+    const REC_LBL = { visit: L('كشف', 'Visit'), lab: L('تحليل', 'Lab test'), img: L('أشعة', 'Imaging') };
+    const recAppts = (s.records || []).filter((r) => r.d && r.d >= todayISO()).map((r) => ({
+      id: 'rec:' + r.id, recId: r.id, title: (tx(r.title).startsWith(REC_LBL[r.type] || '~') ? '' : (REC_LBL[r.type] || '') + ': ') + tx(r.title), who: r.who, d: r.d, cat: 'appt', shared: !!r.shared
+    }));
+    const apptsAll = s.appts.concat(recAppts);
     const takeFn = (id) => () => this.setState({ taken: { ...this.state.taken, [id]: !this.state.taken[id] } });
-    const items = s.appts.slice().sort((a, b) => (a.d || '9').localeCompare(b.d || '9'))
+    const items = apptsAll.slice().sort((a, b) => (a.d || '9').localeCompare(b.d || '9'))
       .filter((x) => s.cat === 'all' || x.cat === s.cat)
       .filter((x) => s.scope === 'all' || (s.scope === 'shared') === x.shared)
       .map((x) => {
         const tk = !!s.taken[x.id];
         return { ...decorate(x), tCls: tk ? 't1 strike' : 't1', takeCls: tk ? 'btn-g' : 'btn', takeTxt: tk ? L('تم ✓ — تراجع', 'Taken ✓ — undo') : L('تم تناوله', 'Mark as taken'), take: takeFn(x.id),
-          del: () => { if (!window.confirm(L('حذف هذا الموعد؟', 'Delete this appointment?'))) return; this.setState({ appts: this.state.appts.filter((y) => y.id !== x.id) }); } };
+          del: () => {
+            if (x.recId) { if (!window.confirm(L('حذف هذا الكشف من المواعيد والسجل الطبي؟', 'Delete this visit from appointments and the medical record?'))) return; this.setState({ records: this.state.records.filter((y) => y.id !== x.recId) }); return; }
+            if (!window.confirm(L('حذف هذا الموعد؟', 'Delete this appointment?'))) return; this.setState({ appts: this.state.appts.filter((y) => y.id !== x.id) });
+          } };
       });
     // ---- الأدوية والسجل الطبي ----
     const INIT = { home: L('م', 'H') };
@@ -440,7 +475,7 @@ export default class Component extends DCLogic {
       })));
     const recList = recAll.filter((r) => (s.recWho === 'all' || r.who === s.recWho) && (s.recType === 'all' || r.type === s.recType))
       .sort((a, b) => b.d.localeCompare(a.d))
-      .map((r) => ({ ...r, open: () => this.setState({ sheet: 'recView', recView: r.id }), date: fmtDate(r.d) + (r.img ? L(' · صورة', ' · photo') : ''), icon: RT[r.type][1], tileCls: 'tile-xs ' + RT[r.type][2], byInit: INIT[r.who], byCls: byCls(r.who), whoName: WHO[r.who] }));
+      .map((r) => ({ ...r, open: () => this.setState({ sheet: 'recView', recView: r.id }), date: fmtDate(r.d) + (r.d > todayISO() && r.type !== 'med' ? L(' · قادم', ' · upcoming') : '') + (r.img ? L(' · صورة', ' · photo') : ''), icon: RT[r.type][1], tileCls: 'tile-xs ' + RT[r.type][2], byInit: INIT[r.who], byCls: byCls(r.who), whoName: WHO[r.who] }));
     const rvR = recAll.find((r) => r.id === s.recView);
     const rv = rvR ? {
       title: rvR.title, desc: rvR.desc, meta: RT[rvR.type][0] + ' · ' + (WHO[rvR.who] || '') + ' · ' + fmtDate(rvR.d),
@@ -467,8 +502,8 @@ export default class Component extends DCLogic {
     const cats = catList.map(([k, n]) => ({ name: n, cls: s.cat === k ? 'chip-on' : 'chip', sel: () => this.setState({ cat: k }) }));
     const scList = [['all', L('الكل', 'All')], ['shared', L('المشترك', 'Shared')], ['private', L('الشخصي', 'Personal')]];
     const scopes = scList.map(([k, n]) => ({ name: n, cls: s.scope === k ? 'chip-on' : 'chip', sel: () => this.setState({ scope: k }) }));
-    const upcoming = s.appts.filter((x) => x.d && x.d >= todayISO()).sort((a, b) => a.d.localeCompare(b.d)).slice(0, 3).map(decorate);
-    const busy = new Set(s.appts.filter((x) => x.d).map((x) => x.d));
+    const upcoming = apptsAll.filter((x) => x.d && x.d >= todayISO()).sort((a, b) => a.d.localeCompare(b.d)).slice(0, 3).map(decorate);
+    const busy = new Set(apptsAll.filter((x) => x.d).map((x) => x.d));
     const dn = isAr ? ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const week = Array.from({ length: 7 }, (_, i) => {
       const d = new Date(); d.setDate(d.getDate() + i);
@@ -640,7 +675,7 @@ export default class Component extends DCLogic {
     };
     const openForm = (cat) => this.setState({ sheet: 'appt', form: { ...this.state.form, title: '', when: '', cat, shared: true, who: myId } });
     const sheetTitles = {
-      price: L('تم الشراء ✓', 'Bought ✓'), card: L('بطاقة', 'Card'), settings: L('الإعدادات', 'Settings'), recView: L('السجل الطبي', 'Medical record'), item: L('تعديل الصنف', 'Edit item'), med: L('دواء جديد', 'New medicine'), medInfo: L('تفاصيل الدواء', 'Medicine details'), rec: L('تحليل / أشعة / كشف', 'Test / scan / visit'), menu: L('إضافة', 'Add'), theme: L('الإعدادات والمظهر', 'Settings & theme'),
+      price: L('تم الشراء ✓', 'Bought ✓'), card: L('بطاقة', 'Card'), join: L('الانضمام إلى أسرة', 'Join a family'), settings: L('الإعدادات', 'Settings'), recView: L('السجل الطبي', 'Medical record'), item: L('تعديل الصنف', 'Edit item'), med: L('دواء جديد', 'New medicine'), medInfo: L('تفاصيل الدواء', 'Medicine details'), rec: L('تحليل / أشعة / كشف', 'Test / scan / visit'), menu: L('إضافة', 'Add'), theme: L('الإعدادات والمظهر', 'Settings & theme'),
       pick: pp ? tx(pp.name) : '', task: L('مهمة مطبخ جديدة', 'New kitchen task'), appt: isMedForm ? L('دواء جديد', 'New medicine') : L('تذكير جديد', 'New reminder')
     };
 
@@ -678,6 +713,37 @@ export default class Component extends DCLogic {
       },
       logout: () => { if (!window.confirm(L('تسجيل الخروج من هذا الهاتف؟', 'Sign out on this phone?'))) return; this.setState({ sheet: null }); S.logOut(); },
       famLabel: fam ? fam.name : '',
+      hasInvites: (s.famInvites || []).length > 0,
+      inviteRows: (s.famInvites || []).map((f) => ({
+        text: L('دعوة للانضمام إلى «' + f.name + '»', 'Invitation to join “' + f.name + '”'),
+        sub: fam ? L('عند الانضمام ستغادر «' + fam.name + '»', 'Joining will leave “' + fam.name + '”') : L('من ' + ((f.people || [])[0] || {}).name, 'From ' + ((f.people || [])[0] || {}).name),
+        join: () => this.acceptInvite(f),
+        reject: () => { if (window.confirm(L('رفض الدعوة؟', 'Decline the invitation?'))) S.removeEmail(f.id, s.auth.email); }
+      })),
+      joinCode: s.joinCode, onJoinCode: (e) => this.setState({ joinCode: e.target.value }),
+      doJoin: () => {
+        const c = S.normCode(this.state.joinCode); if (c.length < 6) { this.flash(L('اكتب الكود كاملاً', 'Enter the full code')); return; }
+        this.setState({ joinBusy: true });
+        S.joinWithCode(c, s.auth.email).then((fid) => {
+          const old = this.state.family;
+          this.setState({ famPref: fid, joinBusy: false, joinCode: '', sheet: null });
+          if (old && old.id !== fid) S.leaveFamily(old, s.auth.uid, s.auth.email).catch(() => {});
+          this.flash(L('تم الانضمام إلى الأسرة', 'Joined the family'));
+        }).catch((e) => { this.setState({ joinBusy: false }); this.flash(S.authError(e, isAr)); });
+      },
+      inviteCodeTxt: fam && fam.inviteCode ? fam.inviteCode.slice(0, 4) + '-' + fam.inviteCode.slice(4) : '',
+      hasInviteCode: !!(fam && fam.inviteCode),
+      shareInvite: () => {
+        S.ensureInviteCode(fam, s.auth.uid).then((code) => {
+          const pretty = code.slice(0, 4) + '-' + code.slice(4);
+          const msg = isAr
+            ? 'انضم إلى أسرتنا «' + fam.name + '» على تطبيق بيتنا:\n١. نزّل التطبيق: ' + DOWNLOAD_URL + '\n٢. أنشئ حساباً، ثم اختر «الانضمام بكود» واكتب: ' + pretty
+            : 'Join our family “' + fam.name + '” on Baitna:\n1. Download: ' + DOWNLOAD_URL + '\n2. Create an account, choose “Join with a code” and enter: ' + pretty;
+          return shareText(L('دعوة إلى بيتنا', 'Baitna invitation'), msg).then((r) => { if (r === 'copied') this.flash(L('تم نسخ الدعوة', 'Invitation copied')); });
+        }).catch((e) => this.flash(S.authError(e, isAr)));
+      },
+      openJoin: () => this.setState({ sheet: 'join' }),
+      isJoinSheet: s.sheet === 'join',
       memberRows: fam ? (fam.memberEmails || []).map((em) => {
         const p = (fam.people || []).find((x) => x.email === em);
         return { name: p ? (p.id === myId ? p.name + L(' (أنت)', ' (you)') : p.name) : em, sub: p ? em : L('بانتظار التسجيل', 'Not joined yet'),
@@ -820,7 +886,7 @@ export default class Component extends DCLogic {
       openTask: () => this.setState({ sheet: 'task', form: { ...this.state.form, name: '', icon: 'pot', n: 1, m: 10 } }),
       openAppt: () => openForm('appt'),
       openMed: () => this.setState({ sheet: 'med', mf: { name: '', dose: '', times: ['09:00'], note: '', who: myId, shared: false } }),
-      openRec: () => this.setState({ sheet: 'rec', rf: { type: 'lab', title: '', date: '', result: '', who: myId, shared: false } }),
+      openRec: () => this.setState({ sheet: 'rec', rf: { type: 'visit', title: '', date: '', result: '', who: myId, shared: true } }),
       goMeds: () => this.setState({ tab: 'sched', schedSeg: 'meds' }), goRec: () => this.setState({ schedSeg: 'rec', recType: 'med' }),
       segs, isSegAppts: s.schedSeg === 'appts', isSegMeds: s.schedSeg === 'meds', isSegRec: s.schedSeg === 'rec',
       todayDoses, medGroups, noDoses: medGroups.length === 0, medWhoChips: whoChips(medWho, 'medWho', true),
@@ -846,7 +912,7 @@ export default class Component extends DCLogic {
         this.flash(L('نُقل إلى السجل الطبي', 'Moved to the medical record'));
       },
       rf, rfPh: rf.type === 'lab' ? L('مثلاً: صورة دم كاملة', 'e.g. complete blood count') : rf.type === 'img' ? L('مثلاً: أشعة على الركبة', 'e.g. knee X-ray') : L('مثلاً: كشف باطني', 'e.g. GP visit'),
-      rfTypes: ['lab', 'img', 'visit'].map((k) => ({ name: RT[k][0], cls: rf.type === k ? 'chip-on' : 'chip', sel: () => setRf({ type: k }) })),
+      rfTypes: ['visit', 'lab', 'img'].map((k) => ({ name: RT[k][0], cls: rf.type === k ? 'chip-on' : 'chip', sel: () => setRf({ type: k }) })),
       rfTitle: (e) => setRf({ title: e.target.value }), rfDate: (e) => setRf({ date: e.target.value }), rfResult: (e) => setRf({ result: e.target.value }),
       rfWho: PIDS.map((k) => ({ name: WHO[k], cls: rf.who === k ? 'chip-on' : 'chip', sel: () => setRf({ who: k }) })),
       rfPrivCls: rf.shared ? 'chip' : 'chip-on', rfShareCls: rf.shared ? 'chip-on' : 'chip',
@@ -861,7 +927,7 @@ export default class Component extends DCLogic {
         if (!ti) { this.flash(L('اكتب العنوان أولاً', 'Enter a title first')); return; }
         const rec = { id: 'r' + Date.now(), type: r.type, title: ti, who: r.who, d: r.date || todayISO(), result: (r.result || '').trim(), shared: r.shared, img: r.img || '' };
         this.setState({ records: [rec, ...this.state.records], sheet: null, tab: 'sched', schedSeg: 'rec', recType: 'all', recWho: 'all' });
-        this.flash(L('تم الحفظ في السجل الطبي', 'Saved to the medical record'));
+        this.flash(rec.d > todayISO() ? L('حُفظ في السجل الطبي وأُضيف إلى المواعيد', 'Saved to the record and added to appointments') : L('تم الحفظ في السجل الطبي', 'Saved to the medical record'));
       },
       openShop: () => this.setState({ sheet: null, tab: 'shop' }),
 

@@ -3,6 +3,7 @@ import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { TextToSpeech } from '@capacitor-community/text-to-speech';
 import { BiometricAuth } from '@aparajita/capacitor-biometric-auth';
+import { Share } from '@capacitor/share';
 
 export const isNative = Capacitor.isNativePlatform();
 
@@ -97,4 +98,14 @@ export function readImage(file, maxSide = 1100) {
     r.onerror = () => resolve(null);
     r.readAsDataURL(file);
   });
+}
+
+export async function shareText(title, text) {
+  if (isNative) { try { await Share.share({ title, text, dialogTitle: title }); return true; } catch (e) { return false; } }
+  try { if (navigator.share) { await navigator.share({ title, text }); return true; } } catch (e) {}
+  try { await navigator.clipboard.writeText(text); return 'copied'; } catch (e) { return false; }
+}
+export async function localAlert(title, body) {
+  if (!isNative) return;
+  try { await LocalNotifications.schedule({ notifications: [{ id: 290000 + Math.floor(Math.random() * 9000), title, body, channelId: 'reminders', schedule: { at: new Date(Date.now() + 1000) } }] }); } catch (e) {}
 }

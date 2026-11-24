@@ -6,15 +6,30 @@ service cloud.firestore {
     function isMember(fid) {
       return signedIn() && myEmail() in get(/databases/$(database)/documents/families/$(fid)).data.memberEmails;
     }
+    // someone holding the invite code may add exactly their own email, nothing else
+    function selfJoin() {
+      return signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberEmails'])
+        && request.resource.data.memberEmails.hasAll(resource.data.memberEmails)
+        && request.resource.data.memberEmails.size() == resource.data.memberEmails.size() + 1
+        && myEmail() in request.resource.data.memberEmails;
+    }
+
+    match /invites/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if isMember(request.resource.data.fid);
+      allow delete: if isMember(resource.data.fid);
+    }
 
     match /families/{fid} {
       allow read: if signedIn() && myEmail() in resource.data.memberEmails;
       allow create: if signedIn() && request.resource.data.owner == request.auth.uid
                     && myEmail() in request.resource.data.memberEmails;
-      allow update: if isMember(fid);
+      allow update: if isMember(fid) || selfJoin();
       allow delete: if signedIn() && resource.data.owner == request.auth.uid;
 
-      // shared items are visible to the whole family; personal items only to their owner
+      // shared items: whole family; personal items: owner only
       match /{kind}/{id} {
         allow read: if isMember(fid) && (resource == null || resource.data.shared == true
                                           || resource.data.owner == request.auth.uid);
