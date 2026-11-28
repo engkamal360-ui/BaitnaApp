@@ -109,3 +109,55 @@ export async function localAlert(title, body) {
   if (!isNative) return;
   try { await LocalNotifications.schedule({ notifications: [{ id: 290000 + Math.floor(Math.random() * 9000), title, body, channelId: 'reminders', schedule: { at: new Date(Date.now() + 1000) } }] }); } catch (e) {}
 }
+
+// ---- files: save a text file and open the share sheet ----
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+export async function shareFile(name, text, title) {
+  if (!isNative) return false;
+  try {
+    const w = await Filesystem.writeFile({ path: name, data: text, directory: Directory.Cache, encoding: Encoding.UTF8 });
+    await Share.share({ title, files: [w.uri], dialogTitle: title });
+    return true;
+  } catch (e) { console.warn('shareFile', e); return false; }
+}
+
+// ---- speech to text ----
+import { SpeechRecognition } from '@capacitor-community/speech-recognition';
+export async function listen(lang) {
+  if (isNative) {
+    const av = await SpeechRecognition.available();
+    if (!av.available) throw new Error('no-speech');
+    const perm = await SpeechRecognition.requestPermissions();
+    if (perm.speechRecognition !== 'granted') throw new Error('no-permission');
+    const r = await SpeechRecognition.start({ language: lang === 'ar' ? 'ar-EG' : 'en-US', maxResults: 1, partialResults: false, popup: true,
+      prompt: lang === 'ar' ? 'قل الطلبات…' : 'Say the items…' });
+    return ((r && r.matches) || [])[0] || '';
+  }
+  const R = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!R) throw new Error('no-speech');
+  return new Promise((resolve, reject) => {
+    const rec = new R(); rec.lang = lang === 'ar' ? 'ar-EG' : 'en-US'; rec.interimResults = false;
+    rec.onresult = (e) => resolve(e.results[0][0].transcript); rec.onerror = (e) => reject(new Error(e.error || 'speech-error')); rec.start();
+  });
+}
+
+// ---- share an image (e.g. a medical result page) ----
+export async function shareImage(name, dataUrl, title) {
+  if (!isNative) return false;
+  try {
+    const b64 = String(dataUrl).split(',')[1];
+    const w = await Filesystem.writeFile({ path: name, data: b64, directory: Directory.Cache });
+    await Share.share({ title, files: [w.uri], dialogTitle: title });
+    return true;
+  } catch (e) { console.warn('shareImage', e); return false; }
+}
+
+// ---- pick ONE phone number from the phone's contacts ----
+// Uses Android's own contact picker: the app gets only the picked contact, once, with no permanent contacts permission.
+import { registerPlugin } from '@capacitor/core';
+const ContactPicker = registerPlugin('ContactPicker');
+export async function pickPhone() {
+  if (!isNative) throw new Error('web');
+  const r = await ContactPicker.pick();
+  return { name: (r && r.name) || '', phone: (r && r.phone) || '' };
+}

@@ -6,15 +6,17 @@ import {
 } from 'firebase/auth';
 import {
   initializeFirestore, persistentLocalCache, collection, doc, query, where, onSnapshot,
-  setDoc, getDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, increment, serverTimestamp
+  setDoc, getDoc, getDocs, addDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, increment, serverTimestamp
 } from 'firebase/firestore';
 import CONFIG from './firebase-config.js';
 
 export const enabled = !!(CONFIG && CONFIG.apiKey && CONFIG.projectId);
-export const KINDS = ['shop', 'appts', 'meds', 'records', 'cards'];
+export const KINDS = ['shop', 'appts', 'meds', 'records', 'cards', 'log', 'catalog', 'recur', 'cars', 'maint', 'warranty', 'contacts', 'health', 'measures', 'prefs', 'cgroups', 'dossier', 'files', 'todos', 'chores', 'chcats'];
 let auth = null, db = null;
+export let fbApp = null;
 if (enabled) {
   const app = initializeApp(CONFIG);
+  fbApp = app;
   auth = initializeAuth(app, { persistence: indexedDBLocalPersistence });
   try { db = initializeFirestore(app, { localCache: persistentLocalCache() }); }
   catch (e) { db = initializeFirestore(app, {}); }
@@ -36,7 +38,12 @@ export const logOut = () => signOut(auth);
 // every family whose member list contains this email (own family + pending invitations)
 export function watchFamilies(email, cb) {
   const q = query(collection(db, 'families'), where('memberEmails', 'array-contains', low(email)));
-  return onSnapshot(q, (snap) => cb(snap.docs.map((d) => ({ id: d.id, ...d.data() }))), (err) => { console.warn('families', err); cb([], err); });
+  // includeMetadataChanges: an empty answer from the phone's cache (fresh install / offline) is NOT trusted —
+  // we wait for the server so the app never thinks "no family" and offers to create a new one by mistake.
+  return onSnapshot(q, { includeMetadataChanges: true }, (snap) => {
+    if (snap.empty && snap.metadata.fromCache) { cb(null, { code: 'waiting-server' }); return; }
+    cb(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+  }, (err) => { console.warn('families', err); cb(null, err); });
 }
 const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 export const normCode = (c) => (c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -114,4 +121,19 @@ export function authError(e, ar) {
     'permission-denied': ['غير مسموح: تأكد من الكود', 'Not allowed — check the code']
   };
   return (M[c] || ['حدث خطأ، حاول مرة أخرى', 'Something went wrong, try again'])[ar ? 0 : 1];
+}
+
+// ---- nudges: short family notifications (shown by each member's app) ----
+export async function sendNudge(fid, uid, fromName, title, body) {
+  const col = collection(db, 'families', fid, 'nudges');
+  await addDoc(col, { shared: true, owner: uid, from: uid, fromName, title, body, at: Date.now() });
+  try { // tidy up this sender's nudges older than 3 days
+    const old = await getDocs(query(col, where('owner', '==', uid)));
+    const cut = Date.now() - 3 * 86400000;
+    old.docs.filter((d) => (d.data().at || 0) < cut).forEach((d) => deleteDoc(d.ref).catch(() => {}));
+  } catch (e) {}
+}
+export function watchNudges(fid, cb) {
+  return onSnapshot(query(collection(db, 'families', fid, 'nudges'), where('shared', '==', true)),
+    (s) => cb(s.docs.map((d) => ({ id: d.id, ...d.data() }))), (e) => console.warn('nudges', e));
 }

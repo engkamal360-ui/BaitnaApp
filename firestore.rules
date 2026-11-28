@@ -27,7 +27,7 @@ service cloud.firestore {
       allow create: if signedIn() && request.resource.data.owner == request.auth.uid
                     && myEmail() in request.resource.data.memberEmails;
       allow update: if isMember(fid) || selfJoin();
-      allow delete: if signedIn() && resource.data.owner == request.auth.uid;
+      allow delete: if false; // a family is never deleted from the app (protects everyone's data)
 
       // shared items: whole family; personal items: owner only
       match /{kind}/{id} {

@@ -1,5 +1,5 @@
 
-<div class="{{ appCls }}" lang="{{ lang }}">
+<div class="{{ appCls }}" lang="{{ lang }}" style="{{ appStyle }}">
   <sc-if value="{{ gSplash }}" hint-placeholder-val="{{ false }}">
     <div class="gate"><p class="brand">{{ T.brand }}</p><p class="t2">{{ T.loading }}</p></div>
   </sc-if>
@@ -54,6 +54,7 @@
           <button class="btn-s" style="width:auto;padding:0 14px;font:inherit;font-size:13px" onClick="{{ doJoin }}">{{ T.joinBtn }}</button>
         </div>
         <div class="sep"></div>
+        <div class="insight" style="font-size:12.5px">{{ T.famEmailNote }}<b style="direction:ltr;display:inline-block">{{ authEmail }}</b><br><button class="lnk" onClick="{{ logoutQuick }}">{{ T.famNotYou }}</button></div>
         <p class="h" style="margin:0">{{ T.famTitle }}</p>
         <p class="t2">{{ T.famCreateHint }}</p>
         <label class="lbl" for="gFam">{{ T.famName }}</label>
@@ -67,17 +68,34 @@
     </div>
   </sc-if>
 
+  <sc-if value="{{ gFamErr }}" hint-placeholder-val="{{ false }}">
+    <div class="gate"><div class="gate-card">
+      <p class="brand" style="text-align:center">{{ T.brand }}</p>
+      <p class="t2" style="text-align:center">{{ T.famErrTxt }}</p>
+      <button class="btn" onClick="{{ retryFam }}">{{ T.retry }}</button>
+      <button class="lnk" onClick="{{ logout }}">{{ T.logout }}</button>
+    </div></div>
+  </sc-if>
+
   <sc-if value="{{ gApp }}" hint-placeholder-val="{{ true }}">
   <div class="top">
-    <div class="grow">
-      <p class="hello">{{ T.hello }}</p>
+    <div class="grow" style="min-width:0">
       <h1 class="brand">{{ T.brand }}</h1>
-      <span class="sync"><span class="dot"></span>{{ T.sync }}</span>
+      <p class="hello"><span class="sync-s" title="{{ T.sync }}"><span class="dot"></span></span><span>{{ T.hello }}</span></p>
     </div>
-    <button class="ib" onClick="{{ toggleLang }}" aria-label="{{ T.langAria }}" style="font-weight:700;font-size:15px">{{ T.langBtn }}</button>
-    <button class="ib" onClick="{{ openTheme }}" aria-label="{{ T.themeAria }}">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.7-.8 1.7-1.6 0-1.1-.9-1.4-.9-2.4 0-.9.7-1.5 1.6-1.5H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.1"/><circle cx="10.5" cy="7" r="1.1"/><circle cx="15" cy="7.5" r="1.1"/></svg>
-    </button>
+    <div class="zwrap">
+      <button class="ib zbtn" onClick="{{ toggleZoom }}" aria-label="{{ T.zoomLbl }}" title="{{ T.zoomLbl }}"><span style="font-size:11px">A</span><span style="font-size:17px">A</span></button>
+      <sc-if value="{{ zoomOpen }}" hint-placeholder-val="{{ false }}">
+        <div class="zpop" role="group" aria-label="{{ T.zoomLbl }}">
+          <button onClick="{{ zoomOut }}" aria-label="{{ T.zoomOutA }}">−</button>
+          <span class="zdots"><sc-for list="{{ zoomDots }}" as="d" hint-placeholder-count="5"><i class="{{ d.cls }}"></i></sc-for></span>
+          <button onClick="{{ zoomIn }}" aria-label="{{ T.zoomInA }}">+</button>
+        </div>
+      </sc-if>
+    </div>
+    <button class="ib ib-mic" onClick="{{ startDictation }}" aria-label="{{ T.voiceBtn }}" title="{{ T.voiceBtn }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg></button>
+    <button class="ib" onClick="{{ openFamily }}" aria-label="{{ T.familyT }}" title="{{ T.familyT }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4.5a3 3 0 0 1 0 6M18 14c2 .6 3.5 2.8 3.5 5.5"/></svg></button>
+    <button class="ib" onClick="{{ openTheme }}" aria-label="{{ T.settingsT }}" title="{{ T.settingsT }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   </div>
 
   <div class="body">
@@ -96,12 +114,14 @@
           </div>
         </sc-for>
       </sc-if>
+      <div class="tblk" style="order:{{ tord.hero }}">
+      <sc-if value="{{ show.todayHero }}" hint-placeholder-val="{{ true }}">
       <div class="hero">
         <p class="hero-sub">{{ T.date }}</p>
         <div class="stats">
-          <div class="stat"><span class="stat-n">{{ timerCount }}</span><span class="hero-sub">{{ T.statFire }}</span></div>
-          <div class="stat"><span class="stat-n">{{ medsDone }}/{{ medsTotal }}</span><span class="hero-sub">{{ T.statMeds }}</span></div>
           <div class="stat"><span class="stat-n">{{ weekCount }}</span><span class="hero-sub">{{ T.statWeek }}</span></div>
+          <sc-if value="{{ show.mMed }}" hint-placeholder-val="{{ true }}"><div class="stat"><span class="stat-n">{{ medsDone }}/{{ medsTotal }}</span><span class="hero-sub">{{ T.statMeds }}</span></div></sc-if>
+          <sc-if value="{{ show.kitchen }}" hint-placeholder-val="{{ true }}"><div class="stat"><span class="stat-n">{{ timerCount }}</span><span class="hero-sub">{{ T.statFire }}</span></div></sc-if>
         </div>
         <sc-for list="{{ timers }}" as="t" hint-placeholder-count="0">
           <button class="hb" onClick="{{ goKitchen }}">
@@ -116,18 +136,125 @@
         </sc-for>
       </div>
 
-      <div class="card">
-        <div class="week">
-          <sc-for list="{{ week }}" as="d" hint-placeholder-count="7">
-            <div class="{{ d.cls }}"><span>{{ d.name }}</span><span class="dn">{{ d.num }}</span><span class="{{ d.dot }}"></span></div>
+      </sc-if>
+      </div>
+      <div class="tblk" style="order:{{ tord.dues }}">
+      <sc-if value="{{ hasAnyDue }}" hint-placeholder-val="{{ false }}">
+        <div class="card" style="gap:6px">
+          <p class="h" style="margin:0">{{ T.duesT }}</p>
+          <sc-for list="{{ homeDue }}" as="r" hint-placeholder-count="0">
+            <button class="row hd-row" style="gap:10px" onClick="{{ r.go }}">
+              <div class="tile-s cat-appt"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg></div>
+              <div class="grow" style="text-align:start"><p class="t1">{{ r.name }}</p><p class="t2"><span class="{{ r.cls }}">{{ r.sub }}</span></p></div>
+              <span class="t2">‹</span>
+            </button>
+          </sc-for>
+          <sc-for list="{{ todayDues }}" as="r" hint-placeholder-count="1">
+            <div class="row" style="gap:10px">
+              <div class="tile-s ec"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ r.icon }}"/></svg></div>
+              <div class="grow"><p class="t1">{{ r.name }}</p><p class="t2"><span class="{{ r.wCls }}">{{ r.whenTxt }}</span> · {{ r.amtTxt }}</p></div>
+              <button class="{{ r.stCls }}" onClick="{{ r.pay }}">{{ r.stTxt }}</button>
+            </div>
           </sc-for>
         </div>
+      </sc-if>
       </div>
+      <div class="tblk" style="order:{{ tord.todos }}">
+      <sc-if value="{{ show.todayTodos }}" hint-placeholder-val="{{ true }}">
+        <div class="tdc" data-dl="todo">
+          <div class="row" style="justify-content:space-between"><p class="h" style="margin:0">✅ {{ T.todosT }}</p><span class="t2" style="font-size:12px">{{ td.progress }}</span></div>
+          <div class="td-add"><input class="in-s grow" placeholder="{{ T.todoPh }}" value="{{ td.draft }}" onChange="{{ td.onDraft }}" onKeyDown="{{ td.onKey }}"><button class="btn-s" onClick="{{ td.add }}" aria-label="{{ T.add }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
+          <sc-for list="{{ td.rows }}" as="x" hint-placeholder-count="2">
+            <div class="{{ x.rowWrap }}" data-di="{{ x.dk }}"><div class="{{ x.lateCls }}">
+              <button class="{{ x.ckCls }}" onClick="{{ x.toggle }}" aria-label="{{ x.text }}"><sc-if value="{{ x.done }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></sc-if></button>
+              <button class="grow td-m" onClick="{{ x.edit }}"><span class="{{ x.txtCls }}">{{ x.text }}</span><sc-if value="{{ x.hasTags }}" hint-placeholder-val="{{ false }}"><span class="td-g">{{ x.tags }}</span></sc-if></button>
+              <button class="{{ x.priCls }}" onClick="{{ x.togglePri }}" aria-label="{{ x.priLbl }}" title="{{ x.priLbl }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ x.priPath }}"/></svg></button><button class="icb-s" onClick="{{ x.del }}" aria-label="{{ T.del }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+            </div>
+            <sc-if value="{{ x.priOpen }}" hint-placeholder-val="{{ false }}"><div class="pri-pop"><sc-for list="{{ x.priOpts }}" as="o" hint-placeholder-count="3"><button class="{{ o.cls }}" onClick="{{ o.sel }}">{{ o.name }}</button></sc-for></div></sc-if></div>
+          </sc-for>
+          <sc-if value="{{ td.allDone }}" hint-placeholder-val="{{ false }}"><p class="fa-ok" style="text-align:center">{{ T.allDoneT }} <button class="lnk" onClick="{{ td.clearDone }}">{{ T.clearDoneT }}</button></p></sc-if>
+          <sc-if value="{{ td.hasLater }}" hint-placeholder-val="{{ false }}"><p class="t2" style="font-size:11.5px">{{ td.laterTxt }}</p></sc-if>
+        </div>
+      </sc-if>
+      </div>
+      <div class="tblk" style="order:{{ tord.chores }}">
+      <sc-if value="{{ show.todayChores }}" hint-placeholder-val="{{ true }}">
+        <div class="tdc" data-dl="chore">
+          <div class="row" style="justify-content:space-between"><p class="h" style="margin:0">🏠 {{ T.choresT }}</p><span class="t2" style="font-size:12px">{{ ch.count }}</span></div>
+          <div class="td-add"><input class="in-s grow" placeholder="{{ T.chorePh }}" value="{{ ch.draft }}" onChange="{{ ch.onDraft }}" onKeyDown="{{ ch.onKey }}"><button class="btn-s" onClick="{{ ch.add }}" aria-label="{{ T.add }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
+          <sc-for list="{{ ch.top }}" as="x" hint-placeholder-count="2">
+            <div class="{{ x.rowWrap }}" data-di="{{ x.dk }}"><div class="{{ x.mineCls }}">
+              <button class="ck" onClick="{{ x.done }}" aria-label="✓"></button>
+              <button class="grow td-m" onClick="{{ x.edit }}"><span class="td-t">{{ x.emoji }} {{ x.text }}</span><span class="td-g">{{ x.sub }}</span></button>
+              <sc-if value="{{ x.canTake }}" hint-placeholder-val="{{ false }}"><button class="take" onClick="{{ x.take }}">✋ {{ T.takeIt }}</button></sc-if>
+              <span class="{{ x.ownerCls }}">{{ x.ownerTxt }}</span>
+              <button class="{{ x.priCls }}" onClick="{{ x.togglePri }}" aria-label="{{ x.priLbl }}" title="{{ x.priLbl }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ x.priPath }}"/></svg></button>
+              
+            </div>
+            <sc-if value="{{ x.priOpen }}" hint-placeholder-val="{{ false }}"><div class="pri-pop"><sc-for list="{{ x.priOpts }}" as="o" hint-placeholder-count="3"><button class="{{ o.cls }}" onClick="{{ o.sel }}">{{ o.name }}</button></sc-for></div></sc-if></div>
+          </sc-for>
+          <sc-if value="{{ ch.more }}" hint-placeholder-val="{{ false }}"><button class="lnk" onClick="{{ ch.goAll }}">{{ ch.moreTxt }} ‹</button></sc-if>
+        </div>
+      </sc-if>
+      </div>
+      <div class="tblk" style="order:{{ tord.week }}">
+      <sc-if value="{{ show.todayWeek }}" hint-placeholder-val="{{ true }}">
+      <div class="wk">
+        <div class="week">
+          <sc-for list="{{ week }}" as="d" hint-placeholder-count="7">
+            <button class="{{ d.cls }}" onClick="{{ d.pick }}"><span>{{ d.name }}</span><span class="dn">{{ d.num }}</span><span class="{{ d.dot }}"></span></button>
+          </sc-for>
+        </div>
+        <button class="cal-btn" onClick="{{ openCal }}" aria-label="{{ T.calendar }}" title="{{ T.calendar }}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01"/></svg>
+        </button>
+      </div>
+      <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}">
+        <p class="grp-h">{{ selTitle }}</p>
+        <div class="ilist">
+          <sc-for list="{{ dayItems }}" as="it" hint-placeholder-count="1">
+            <div class="it" onClick="{{ it.edit }}" style="cursor:pointer">
+              <div class="it-top">
+                <button class="{{ it.ckCls }}" onClick="{{ it.toggleDone }}" aria-label="{{ T.markDone }}"><sc-if value="{{ it.isDone }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></sc-if></button>
+              <span class="tile-xs {{ it.catCls }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ it.icon }}"/></svg></span>
+                <span class="{{ it.nameCls }}">{{ it.title }}</span>
+                <span class="it-desc"></span>
+                <span class="{{ it.pCls }}">{{ it.whoPill }}</span>
+                <span class="{{ it.bCls }}">{{ it.bTxt }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ noDayItems }}" hint-placeholder-val="{{ false }}"><p class="t2" style="padding:0 2px">{{ T.noDayItems }}</p></sc-if>
+        <sc-if value="{{ hasDayMeds }}" hint-placeholder-val="{{ false }}"><p class="t2" style="padding:0 2px">{{ dayMedsTxt }}</p></sc-if>
+        <sc-if value="{{ hasDayLog }}" hint-placeholder-val="{{ false }}">
+          <p class="grp-h">{{ T.doneTitle }}</p>
+          <div class="ilist">
+          <sc-for list="{{ dayLog }}" as="l" hint-placeholder-count="1">
+            <div class="it it-log">
+              <div class="it-top">
+                <span class="okmark"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></span>
+                <span class="it-name" style="cursor:default">{{ l.text }}</span>
+                <span class="it-desc">{{ l.kind }} · {{ l.time }} {{ l.byTxt }}</span>
+                <span class="{{ l.pCls }}">{{ l.whoPill }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+        <button class="lnk" style="align-self:flex-start" onClick="{{ addOnDayFn }}">{{ T.addOnDay }}</button>
+      </sc-if>
 
 
+      </sc-if>
+      </div>
+      <div class="tblk" style="order:{{ tord.meds }}">
+      <sc-if value="{{ show.todayMeds }}" hint-placeholder-val="{{ true }}">
       <p class="h">{{ T.medsTitle }} <button class="lnk" onClick="{{ goMeds }}">{{ T.all }}</button></p>
+      <sc-for list="{{ doseGroups }}" as="g" hint-placeholder-count="1">
+        <sc-if value="{{ g.hasName }}" hint-placeholder-val="{{ false }}"><p class="grp-h">{{ g.name }}</p></sc-if>
       <div class="ilist">
-        <sc-for list="{{ todayDoses }}" as="d" hint-placeholder-count="3">
+        <sc-for list="{{ g.items }}" as="d" hint-placeholder-count="2">
           <div class="{{ d.boxCls }}">
             <div class="it-top">
               <button class="{{ d.ckCls }}" onClick="{{ d.take }}" aria-label="{{ T.taken }}">
@@ -141,15 +268,22 @@
                 <span class="it-desc">{{ d.note }}</span>
               </sc-if>
               <span class="{{ d.timeCls }}">{{ d.time }}</span>
-              <span class="{{ d.byCls }}" aria-label="{{ d.whoName }}">{{ d.byInit }}</span>
+              <span class="{{ d.pCls }}">{{ d.whoPill }}</span>
             </div>
           </div>
         </sc-for>
+      </div>
+      </sc-for>
+      <div class="ilist">
         <sc-if value="{{ noTodayDoses }}" hint-placeholder-val="{{ false }}">
           <p class="t2" style="padding:6px 2px">{{ T.noDosesToday }}</p>
         </sc-if>
       </div>
 
+      </sc-if>
+      </div>
+      <div class="tblk" style="order:{{ tord.alerts }}">
+      <sc-if value="{{ show.todayAlerts }}" hint-placeholder-val="{{ true }}">
       <sc-for list="{{ cardAlerts }}" as="al" hint-placeholder-count="0">
         <div class="alert">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
@@ -157,20 +291,56 @@
         </div>
       </sc-for>
 
-      <p class="h">{{ T.upcoming }} <button class="lnk" onClick="{{ go.sched }}">{{ T.all }}</button></p>
-      <sc-for list="{{ upcoming }}" as="it" hint-placeholder-count="3">
-        <div class="card">
-          <div class="row">
-            <div class="{{ it.tileCls }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ it.icon }}"/></svg></div>
-            <div class="grow"><p class="t1">{{ it.title }}</p><p class="t2">{{ it.who }} · {{ it.when }}</p></div>
-            <span class="{{ it.bCls }}">{{ it.bTxt }}</span>
-          </div>
+      </sc-if>
+      </div>
+      <div class="tblk" style="order:{{ tord.appts }}">
+      <sc-if value="{{ show.todayAppts }}" hint-placeholder-val="{{ true }}">
+      <div class="row" style="justify-content:space-between;margin-top:8px"><p class="h" style="margin:0">{{ T.apptsTitle }}</p><div class="sortseg" role="group" aria-label="{{ T.sortDate }}">
+          <button class="{{ sortDateCls }}" onClick="{{ setSortDate }}">{{ T.sortDate }}</button>
+          <button class="{{ sortPersonCls }}" onClick="{{ setSortPerson }}">{{ T.sortPerson }}</button>
+        </div></div>
+      <sc-for list="{{ todayGroups }}" as="g" hint-placeholder-count="2">
+        <p class="grp-h">{{ g.name }}</p>
+        <div class="ilist">
+          <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="1">
+            <div class="it" onClick="{{ it.edit }}" style="cursor:pointer">
+              <div class="it-top">
+                <button class="{{ it.ckCls }}" onClick="{{ it.toggleDone }}" aria-label="{{ T.markDone }}"><sc-if value="{{ it.isDone }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></sc-if></button>
+              <span class="tile-xs {{ it.catCls }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ it.icon }}"/></svg></span>
+                <span class="{{ it.nameCls }}">{{ it.title }}</span>
+                <span class="it-desc">{{ it.when }}</span>
+                <span class="{{ it.pCls }}">{{ it.whoPill }}</span>
+                <span class="{{ it.bCls }}">{{ it.bTxt }}</span>
+                <sc-if value="{{ it.canRemind }}" hint-placeholder-val="{{ false }}"><button class="xbtn bell" onClick="{{ it.remind }}" aria-label="{{ T.remindFam }}" title="{{ T.remindFam }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button></sc-if>
+              </div>
+            </div>
+          </sc-for>
         </div>
       </sc-for>
       <sc-if value="{{ noUpcoming }}" hint-placeholder-val="{{ false }}">
         <p class="t2" style="padding:2px">{{ T.noUpcoming }}</p>
       </sc-if>
 
+      <sc-if value="{{ hasTodayLog }}" hint-placeholder-val="{{ false }}">
+        <p class="h">{{ T.todayDoneTitle }} <span class="b-s">{{ todayLogCount }}</span></p>
+        <div class="ilist">
+          <sc-for list="{{ todayLog }}" as="l" hint-placeholder-count="1">
+            <div class="it it-log">
+              <div class="it-top">
+                <span class="okmark"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></span>
+                <span class="it-name" style="cursor:default">{{ l.text }}</span>
+                <span class="it-desc">{{ l.kind }} · {{ l.time }} {{ l.byTxt }}</span>
+                <span class="{{ l.pCls }}">{{ l.whoPill }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      </sc-if>
+      </div>
+      <div class="tblk" style="order:{{ tord.shop }}">
+      <sc-if value="{{ show.todayShop }}" hint-placeholder-val="{{ true }}">
       <p class="h">{{ T.shopPrev }} <button class="lnk" onClick="{{ go.shop }}">{{ T.list }}</button></p>
       <div class="card">
         <div class="chiprow">
@@ -181,6 +351,8 @@
         <p class="t2">{{ shopLine }}</p>
         <div class="sep"></div>
         <div class="row"><p class="t2 grow">{{ T.spentSoFar }}</p><span class="amt">{{ spentTxt }}</span></div>
+      </div>
+      </sc-if>
       </div>
     </sc-if>
 
@@ -223,7 +395,7 @@
       </sc-for>
 
       <p class="h">{{ T.quick }}</p>
-      <div class="grid2">
+      <div class="kgrid">
         <sc-for list="{{ quick }}" as="q" hint-placeholder-count="2">
           <button class="pr" onClick="{{ q.go }}">
             <span class="ics" style="justify-content:flex-start;min-height:28px">
@@ -237,7 +409,7 @@
       </div>
 
       <p class="h">{{ T.tasks }}</p>
-      <div class="grid2">
+      <div class="kgrid">
         <sc-for list="{{ presets }}" as="p" hint-placeholder-count="6">
           <button class="pr" onClick="{{ p.pick }}">
             <div class="{{ p.tileCls }}">
@@ -275,17 +447,27 @@
           <button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button>
         </sc-for>
       </div>
-      <sc-for list="{{ items }}" as="it" hint-placeholder-count="4">
-        <div class="card">
-          <div class="row">
-            <div class="{{ it.tileCls }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ it.icon }}"/></svg></div>
-            <div class="grow"><p class="{{ it.tCls }}">{{ it.title }}</p><p class="t2">{{ it.who }} · {{ it.when }}</p></div>
-            <span class="{{ it.bCls }}">{{ it.bTxt }}</span>
-            <button class="xbtn" onClick="{{ it.del }}" aria-label="{{ T.del }}">×</button>
+      <div class="row" style="justify-content:flex-end"><div class="sortseg" role="group" aria-label="{{ T.sortDate }}">
+          <button class="{{ sortDateCls }}" onClick="{{ setSortDate }}">{{ T.sortDate }}</button>
+          <button class="{{ sortPersonCls }}" onClick="{{ setSortPerson }}">{{ T.sortPerson }}</button>
+        </div></div>
+      <sc-for list="{{ apptGroups }}" as="g" hint-placeholder-count="2">
+        <p class="grp-h">{{ g.name }}</p>
+        <div class="ilist">
+        <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="2">
+          <div class="it" onClick="{{ it.edit }}" style="cursor:pointer">
+            <div class="it-top">
+              <button class="{{ it.ckCls }}" onClick="{{ it.toggleDone }}" aria-label="{{ T.markDone }}"><sc-if value="{{ it.isDone }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></sc-if></button>
+              <span class="tile-xs {{ it.catCls }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ it.icon }}"/></svg></span>
+              <span class="{{ it.nameCls }}">{{ it.title }}</span>
+              <span class="it-desc">{{ it.when }}</span>
+              <span class="{{ it.pCls }}">{{ it.whoPill }}</span>
+              <span class="{{ it.bCls }}">{{ it.bTxt }}</span>
+              <sc-if value="{{ it.canRemind }}" hint-placeholder-val="{{ false }}"><button class="xbtn bell" onClick="{{ it.remind }}" aria-label="{{ T.remindFam }}" title="{{ T.remindFam }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button></sc-if>
+              <sc-if value="{{ it.canDel }}" hint-placeholder-val="{{ true }}"><button class="icb-s" onClick="{{ it.del }}" aria-label="{{ T.del }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></sc-if>
+            </div>
           </div>
-          <sc-if value="{{ it.isMed }}" hint-placeholder-val="{{ false }}">
-            <button class="{{ it.takeCls }}" onClick="{{ it.take }}">{{ it.takeTxt }}</button>
-          </sc-if>
+        </sc-for>
         </div>
       </sc-for>
       <sc-if value="{{ noItems }}" hint-placeholder-val="{{ false }}">
@@ -321,7 +503,7 @@
                 <span class="it-desc">{{ d.note }}</span>
               </sc-if>
               <span class="{{ d.timeCls }}">{{ d.time }}</span>
-              <span class="{{ d.byCls }}" aria-label="{{ d.whoName }}">{{ d.byInit }}</span>
+              <span class="{{ d.pCls }}">{{ d.whoPill }}</span>
             </div>
           </div>
               </sc-for>
@@ -344,6 +526,60 @@
             <button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button>
           </sc-for>
         </div>
+        <sc-if value="{{ showHealthGrid }}" hint-placeholder-val="{{ true }}">
+          <div class="hgrid">
+            <sc-for list="{{ healthGrid }}" as="g" hint-placeholder-count="3">
+              <div class="hcell">
+                <button class="hcell-main" onClick="{{ g.open }}">
+                  <span class="{{ g.avCls }}">{{ g.init }}</span>
+                  <span class="grow" style="min-width:0"><span class="t1" style="display:block">{{ g.name }}</span>
+                    <sc-if value="{{ g.hasAllergy }}" hint-placeholder-val="{{ false }}"><span class="t2 hp-alert-t">{{ g.allergy }}</span></sc-if></span>
+                  <span class="blood">{{ g.blood }}</span>
+                </button>
+                <button class="sos" onClick="{{ g.emergency }}" aria-label="{{ T.emergBtn }}">SOS</button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ hasHealthWho }}" hint-placeholder-val="{{ false }}">
+          <div class="hp">
+            <div class="row" style="gap:10px">
+              <div class="grow"><p class="hp-n">{{ hpv.name }}</p><sc-if value="{{ hpv.hasAge }}" hint-placeholder-val="{{ false }}"><p class="t2">{{ hpv.age }}</p></sc-if></div>
+              <button class="sos sos-l" onClick="{{ hpv.emergency }}">SOS · {{ T.emergBtn }}</button>
+            </div>
+            <div class="hp-grid">
+              <div class="hp-c"><span class="hp-l">{{ T.bloodLbl }}</span><span class="hp-v hp-blood">{{ hpv.blood }}</span></div>
+              <div class="hp-c"><span class="hp-l">{{ T.allergyLbl }}</span><span class="{{ hpv.allergyCls }}">{{ hpv.allergies }}</span></div>
+              <div class="hp-c hp-wide"><span class="hp-l">{{ T.chronicLbl }}</span><span class="hp-v">{{ hpv.chronic }}</span></div>
+            </div>
+            <button class="hp-meas" onClick="{{ hpv.measures }}">
+              <span><b>{{ hpv.bp }}</b><i>{{ T.mBp }}</i></span><span><b>{{ hpv.sugar }}</b><i>{{ T.mSugar }}</i></span><span><b>{{ hpv.weight }}</b><i>{{ T.mWeight }}</i></span><span><b>{{ hpv.height }}</b><i>{{ T.mHeight }}</i></span>
+              <em>{{ T.measuresOpen }} ‹</em>
+            </button>
+            <button class="dos-btn" onClick="{{ hpv.dossier }}"><span class="dos-ic">📁</span><span class="grow"><b>{{ T.dossierT }}</b><span>{{ T.dossierS }}</span></span><span class="dos-n">{{ hpv.dosCount }}</span></button>
+            <div class="row" style="gap:8px">
+              <button class="btn-g grow" style="min-height:42px" onClick="{{ hpv.edit }}">{{ T.editHp }}</button>
+              <button class="btn-g grow" style="min-height:42px" onClick="{{ hpv.measures }}">+ {{ T.newReading }}</button>
+            </div>
+            <sc-if value="{{ hpv.isChild }}" hint-placeholder-val="{{ false }}">
+              <p class="h" style="margin:6px 0 0">{{ T.vaxT }}</p>
+              <sc-if value="{{ hpv.hasVax }}" hint-placeholder-val="{{ false }}">
+                <div class="ilist">
+                  <sc-for list="{{ hpv.vaxRows }}" as="v" hint-placeholder-count="3">
+                    <div class="vx">
+                      <button class="{{ v.ckCls }}" onClick="{{ v.toggle }}" aria-label="{{ v.name }}"><sc-if value="{{ v.done }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></sc-if></button>
+                      <span class="grow"><span class="t1" style="display:block;font-size:13.5px">{{ v.name }}</span><span class="{{ v.sCls }}">{{ v.due }} · {{ v.doneTxt }}</span></span>
+                      <sc-if value="{{ v.canAppt }}" hint-placeholder-val="{{ false }}"><button class="lnk" onClick="{{ v.toAppt }}">{{ T.toAppt }}</button></sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <button class="btn-g" style="min-height:42px" onClick="{{ hpv.addVaxTemplate }}">{{ T.vaxTemplate }}</button>
+              <p class="t2" style="font-size:11.5px">{{ T.vaxNote }}</p>
+            </sc-if>
+          </div>
+          <p class="h" style="margin:8px 0 0">{{ T.recordsT }}</p>
+        </sc-if>
         <div class="scrollx">
           <sc-for list="{{ recTypeChips }}" as="c" hint-placeholder-count="5">
             <button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button>
@@ -384,47 +620,349 @@
         <sc-if value="{{ noCards }}" hint-placeholder-val="{{ false }}">
           <p class="t2" style="text-align:center;padding:24px 0">{{ T.noCards }}</p>
         </sc-if>
-        <sc-for list="{{ cards }}" as="k" hint-placeholder-count="4">
-          <div class="card">
-            <a href="#" onClick="{{ k.open }}" style="text-decoration:none;color:inherit">
-              <div class="row">
-                <div class="tile cat-appt"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="12" r="2.2"/><path d="M14 10h4M14 14h3"/></svg></div>
-                <div class="grow"><p class="t1">{{ k.type }}</p><p class="t2">{{ k.who }} · {{ k.expiry }}</p></div>
-                <span class="{{ k.bCls }}">{{ k.bTxt }}</span>
-              </div>
-            </a>
-            <sc-if value="{{ k.alert }}" hint-placeholder-val="{{ false }}">
-              <div class="alert" style="padding:8px 12px">{{ T.remind30 }}</div>
-            </sc-if>
-            <sc-if value="{{ k.isOpen }}" hint-placeholder-val="{{ false }}">
-              <div class="idc">
-                <sc-if value="{{ k.hasImg }}" hint-placeholder-val="{{ false }}">
-                  <img class="cimg" src="{{ k.img }}" alt="{{ k.type }}">
-                </sc-if>
-                <sc-if value="{{ k.noImg }}" hint-placeholder-val="{{ true }}">
-                  <div class="photo">{{ faceTxt }}</div>
-                </sc-if>
-                <div class="row">
-                  <span class="mono grow">{{ k.num }}</span>
-                  <button class="btn-g" onClick="{{ k.copy }}">{{ T.copy }}</button>
+        <sc-if value="{{ hasCardWhoChips }}" hint-placeholder-val="{{ true }}">
+          <div class="tabs">
+            <sc-for list="{{ cardWhoChips }}" as="c" hint-placeholder-count="4">
+              <button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ hasCardKindChips }}" hint-placeholder-val="{{ true }}">
+          <div class="chips kchips">
+            <sc-for list="{{ cardKindChips }}" as="c" hint-placeholder-count="4">
+              <button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noCardMatch }}" hint-placeholder-val="{{ false }}">
+          <p class="t2" style="text-align:center;padding:18px 0">{{ T2.noMatch }}</p>
+        </sc-if>
+        <div class="vtog" role="group" aria-label="{{ T.cardViewT }}">
+          <button class="{{ cardViewWalletCls }}" onClick="{{ setCardWallet }}" aria-label="{{ T.viewWallet }}" title="{{ T.viewWallet }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="8" width="18" height="6" rx="2"/><rect x="3" y="12" width="18" height="8" rx="2"/></svg></button>
+          <button class="{{ cardViewGridCls }}" onClick="{{ setCardGrid }}" aria-label="{{ T.viewTiles }}" title="{{ T.viewTiles }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></button>
+        </div>
+        <sc-if value="{{ cardWallet }}" hint-placeholder-val="{{ true }}">
+        <sc-for list="{{ cardGroups }}" as="g" hint-placeholder-count="2">
+          <div class="wl-h"><span class="{{ g.pCls }}">{{ g.name }}</span><span class="t2">{{ g.countTxt }}</span></div>
+          <div class="wallet">
+            <sc-for list="{{ g.items }}" as="k" hint-placeholder-count="3">
+              <div class="{{ k.wcCls }}" role="button" tabindex="0" aria-label="{{ k.title }}"
+                onPointerDown="{{ k.down }}" onPointerMove="{{ k.move }}" onPointerUp="{{ k.up }}" onPointerLeave="{{ k.up }}" onPointerCancel="{{ k.up }}" onClick="{{ k.tap }}" onContextMenu="{{ k.menu }}">
+                <div class="wc-top">
+                  <div class="grow"><p class="wc-t">{{ k.cardName }}</p><sc-if value="{{ k.hasIssuer }}" hint-placeholder-val="{{ false }}"><p class="wc-i">{{ k.issuer }}</p></sc-if></div>
+                  <sc-if value="{{ k.hidden }}" hint-placeholder-val="{{ false }}"><span class="wc-pill">🔒</span></sc-if>
                 </div>
-                <div class="chips">
-                  <button class="{{ faceFrontCls }}" onClick="{{ showFront }}">{{ T.front }}</button>
-                  <button class="{{ faceBackCls }}" onClick="{{ showBack }}">{{ T.back }}</button>
-                  <button class="chip" style="margin-inline-start:auto" onClick="{{ k.edit }}">{{ T.editCard }}</button>
-                  <button class="chip" onClick="{{ k.del }}">{{ T.del }}</button>
+                <sc-if value="{{ k.isBank }}" hint-placeholder-val="{{ false }}"><span class="wc-chip"></span></sc-if>
+                <div class="wc-bot">
+                  <span class="wc-n">{{ k.faceNum }}</span>
+                  <span class="wc-e">
+                    <sc-if value="{{ k.alert }}" hint-placeholder-val="{{ false }}"><b class="wc-warn">{{ k.expBadge }}</b></sc-if>
+                    {{ k.expShort }}</span>
                 </div>
               </div>
-            </sc-if>
+              <sc-if value="{{ k.isOpen }}" hint-placeholder-val="{{ false }}">
+                <div class="wc-panel">
+                  <p class="t2">{{ k.expiry }}<sc-if value="{{ k.alert }}" hint-placeholder-val="{{ false }}"> — {{ k.renewTxt }}</sc-if></p>
+                  <sc-if value="{{ k.hasIban }}" hint-placeholder-val="{{ false }}">
+                    <button class="cp-row" onClick="{{ k.copyIban }}"><span class="cp-l">IBAN</span><span class="cp-v">{{ k.ibanTxt }}</span><span class="cp-a">{{ T.copy }}</span></button>
+                  </sc-if>
+                  <sc-if value="{{ k.hasAcct }}" hint-placeholder-val="{{ false }}">
+                    <button class="cp-row" onClick="{{ k.copyAcct }}"><span class="cp-l">{{ T.acctShort }}</span><span class="cp-v">{{ k.acctTxt }}</span><span class="cp-a">{{ T.copy }}</span></button>
+                  </sc-if>
+                  <sc-if value="{{ k.hasImg }}" hint-placeholder-val="{{ false }}">
+                    <img class="cimg" src="{{ k.img }}" alt="{{ k.type }}" onClick="{{ k.full }}">
+                  </sc-if>
+                  <div class="chips">
+                    <button class="{{ faceFrontCls }}" onClick="{{ showFront }}">{{ T.front }}</button>
+                    <button class="{{ faceBackCls }}" onClick="{{ showBack }}">{{ T.back }}</button>
+                    <sc-if value="{{ k.canReveal }}" hint-placeholder-val="{{ false }}"><button class="chip" onClick="{{ k.reveal }}">{{ k.revealTxt }}</button></sc-if>
+                  </div>
+                  <div class="wc-acts">
+                    <button class="wc-a" onClick="{{ k.copy }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>{{ T.copy }}</button>
+                    <button class="wc-a" onClick="{{ k.copyAll }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>{{ T2.copyAll }}</button>
+                    <button class="wc-a" onClick="{{ k.full }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>{{ T2.fullscreen }}</button>
+                  </div>
+                  <sc-if value="{{ k.hasHotline }}" hint-placeholder-val="{{ false }}">
+                    <a class="btn-g hot" href="{{ k.tel }}">{{ T.callBank }} · <span style="direction:ltr">{{ k.hotline }}</span></a>
+                  </sc-if>
+                  <div class="chips">
+                    <button class="icb" onClick="{{ k.edit }}" aria-label="{{ T.editCard }}" title="{{ T.editCard }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg></button>
+                    <button class="icb icb-del" onClick="{{ k.del }}" aria-label="{{ T.del }}" title="{{ T.del }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+                    <button class="chip" style="margin-inline-start:auto" onClick="{{ k.close }}">{{ T2.closeCard }}</button>
+                  </div>
+                </div>
+              </sc-if>
+            </sc-for>
           </div>
         </sc-for>
+        </sc-if>
+        <sc-if value="{{ cardGrid }}" hint-placeholder-val="{{ false }}">
+        <sc-for list="{{ cardGroups }}" as="g" hint-placeholder-count="2">
+          <div class="wl-h"><span class="{{ g.pCls }}">{{ g.name }}</span><span class="t2">{{ g.countTxt }}</span></div>
+          <div class="ctiles">
+            <sc-for list="{{ g.items }}" as="k" hint-placeholder-count="4">
+              <div class="{{ k.tileCls }}" role="button" tabindex="0" aria-label="{{ k.title }}"
+                onPointerDown="{{ k.down }}" onPointerMove="{{ k.move }}" onPointerUp="{{ k.up }}" onPointerLeave="{{ k.up }}" onPointerCancel="{{ k.up }}" onClick="{{ k.tap }}" onContextMenu="{{ k.menu }}">
+                <sc-if value="{{ k.alert }}" hint-placeholder-val="{{ false }}"><b class="wc-warn">{{ k.expBadge }}</b></sc-if>
+                <span class="ctile-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ k.icon }}"/></svg></span>
+                <b>{{ k.cardName }}</b>
+                <span class="t2">{{ k.issuer }} {{ k.expShort }}</span>
+                <span class="ctile-n">{{ k.shortNum }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <sc-for list="{{ g.openItems }}" as="k" hint-placeholder-count="0">
+            <div class="wallet" style="margin-top:4px">
+              <div class="{{ k.wcCls }} wc-last" role="button" tabindex="0" aria-label="{{ k.title }}"
+                onPointerDown="{{ k.down }}" onPointerMove="{{ k.move }}" onPointerUp="{{ k.up }}" onPointerLeave="{{ k.up }}" onPointerCancel="{{ k.up }}" onClick="{{ k.tap }}" onContextMenu="{{ k.menu }}">
+                <div class="wc-top">
+                  <div class="grow"><p class="wc-t">{{ k.cardName }}</p><sc-if value="{{ k.hasIssuer }}" hint-placeholder-val="{{ false }}"><p class="wc-i">{{ k.issuer }}</p></sc-if></div>
+                  <sc-if value="{{ k.hidden }}" hint-placeholder-val="{{ false }}"><span class="wc-pill">🔒</span></sc-if>
+                </div>
+                <sc-if value="{{ k.isBank }}" hint-placeholder-val="{{ false }}"><span class="wc-chip"></span></sc-if>
+                <div class="wc-bot">
+                  <span class="wc-n">{{ k.faceNum }}</span>
+                  <span class="wc-e">
+                    <sc-if value="{{ k.alert }}" hint-placeholder-val="{{ false }}"><b class="wc-warn">{{ k.expBadge }}</b></sc-if>
+                    {{ k.expShort }}</span>
+                </div>
+              </div>
+              <sc-if value="{{ k.isOpen }}" hint-placeholder-val="{{ false }}">
+                <div class="wc-panel">
+                  <p class="t2">{{ k.expiry }}<sc-if value="{{ k.alert }}" hint-placeholder-val="{{ false }}"> — {{ k.renewTxt }}</sc-if></p>
+                  <sc-if value="{{ k.hasIban }}" hint-placeholder-val="{{ false }}">
+                    <button class="cp-row" onClick="{{ k.copyIban }}"><span class="cp-l">IBAN</span><span class="cp-v">{{ k.ibanTxt }}</span><span class="cp-a">{{ T.copy }}</span></button>
+                  </sc-if>
+                  <sc-if value="{{ k.hasAcct }}" hint-placeholder-val="{{ false }}">
+                    <button class="cp-row" onClick="{{ k.copyAcct }}"><span class="cp-l">{{ T.acctShort }}</span><span class="cp-v">{{ k.acctTxt }}</span><span class="cp-a">{{ T.copy }}</span></button>
+                  </sc-if>
+                  <sc-if value="{{ k.hasImg }}" hint-placeholder-val="{{ false }}">
+                    <img class="cimg" src="{{ k.img }}" alt="{{ k.type }}" onClick="{{ k.full }}">
+                  </sc-if>
+                  <div class="chips">
+                    <button class="{{ faceFrontCls }}" onClick="{{ showFront }}">{{ T.front }}</button>
+                    <button class="{{ faceBackCls }}" onClick="{{ showBack }}">{{ T.back }}</button>
+                    <sc-if value="{{ k.canReveal }}" hint-placeholder-val="{{ false }}"><button class="chip" onClick="{{ k.reveal }}">{{ k.revealTxt }}</button></sc-if>
+                  </div>
+                  <div class="wc-acts">
+                    <button class="wc-a" onClick="{{ k.copy }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>{{ T.copy }}</button>
+                    <button class="wc-a" onClick="{{ k.copyAll }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>{{ T2.copyAll }}</button>
+                    <button class="wc-a" onClick="{{ k.full }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>{{ T2.fullscreen }}</button>
+                  </div>
+                  <sc-if value="{{ k.hasHotline }}" hint-placeholder-val="{{ false }}">
+                    <a class="btn-g hot" href="{{ k.tel }}">{{ T.callBank }} · <span style="direction:ltr">{{ k.hotline }}</span></a>
+                  </sc-if>
+                  <div class="chips">
+                    <button class="icb" onClick="{{ k.edit }}" aria-label="{{ T.editCard }}" title="{{ T.editCard }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg></button>
+                    <button class="icb icb-del" onClick="{{ k.del }}" aria-label="{{ T.del }}" title="{{ T.del }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+                    <button class="chip" style="margin-inline-start:auto" onClick="{{ k.close }}">{{ T2.closeCard }}</button>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </sc-for>
+        </sc-if>
+        <p class="t2" style="text-align:center;font-size:12px">{{ cardHint }}</p>
+        <p class="t2" style="text-align:center;font-size:11.5px;margin-top:-6px">{{ cardSafe }}</p>
         <button class="btn-g" style="min-height:42px" onClick="{{ openCardForm }}">{{ T.addCard }}</button>
+      </sc-if>
+    </sc-if>
+
+    <!-- ============ البيت ============ -->
+    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+      <div class="tabs">
+        <sc-for list="{{ homeSegs }}" as="c" hint-placeholder-count="4"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for>
+      </div>
+
+      <sc-if value="{{ isSegChores }}" hint-placeholder-val="{{ false }}">
+        <div class="tdc" data-dl="chore">
+          <div class="row" style="justify-content:space-between"><p class="h" style="margin:0">🏠 {{ T.choresT }} <span class="t2" style="font-size:12px;font-weight:500">{{ ch.count }}</span></p><button class="lnk" onClick="{{ ch.openCats }}">🗂️ {{ T.catsBtn }}</button></div>
+          <sc-if value="{{ ch.hasCats }}" hint-placeholder-val="{{ false }}"><div class="chips chs"><sc-for list="{{ ch.catChips }}" as="c" hint-placeholder-count="3"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div></sc-if>
+          <div class="emrow"><sc-for list="{{ ch.newCatChips }}" as="c" hint-placeholder-count="5"><button class="{{ c.cls }}" onClick="{{ c.sel }}" title="{{ c.title }}" aria-label="{{ c.title }}">{{ c.name }}</button></sc-for></div>
+          <div class="td-add"><input class="in-s grow" placeholder="{{ T.chorePh }}" value="{{ ch.draft }}" onChange="{{ ch.onDraft }}" onKeyDown="{{ ch.onKey }}"><button class="btn-s" onClick="{{ ch.add }}" aria-label="{{ T.add }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
+          <sc-for list="{{ ch.rows }}" as="x" hint-placeholder-count="3">
+            <div class="{{ x.rowWrap }}" data-di="{{ x.dk }}"><div class="{{ x.mineCls }}">
+              <button class="ck" onClick="{{ x.done }}" aria-label="✓"></button>
+              <button class="grow td-m" onClick="{{ x.edit }}"><span class="td-t">{{ x.emoji }} {{ x.text }}</span><span class="td-g">{{ x.sub }}</span></button>
+              <sc-if value="{{ x.canTake }}" hint-placeholder-val="{{ false }}"><button class="take" onClick="{{ x.take }}">✋ {{ T.takeIt }}</button></sc-if>
+              <span class="{{ x.ownerCls }}">{{ x.ownerTxt }}</span>
+              <button class="{{ x.priCls }}" onClick="{{ x.togglePri }}" aria-label="{{ x.priLbl }}" title="{{ x.priLbl }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ x.priPath }}"/></svg></button>
+              <button class="icb-s" onClick="{{ x.del }}" aria-label="{{ T.del }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+            </div>
+            <sc-if value="{{ x.priOpen }}" hint-placeholder-val="{{ false }}"><div class="pri-pop"><sc-for list="{{ x.priOpts }}" as="o" hint-placeholder-count="3"><button class="{{ o.cls }}" onClick="{{ o.sel }}">{{ o.name }}</button></sc-for></div></sc-if></div>
+          </sc-for>
+          <sc-if value="{{ ch.hasFuture }}" hint-placeholder-val="{{ false }}"><p class="t2" style="font-size:11.5px">{{ ch.futureTxt }}</p></sc-if>
+        </div>
+        <p class="t2" style="font-size:11.5px">{{ T.choreHint }}</p>
+        <sc-if value="{{ ch.hasHiddenCats }}" hint-placeholder-val="{{ false }}"><p class="t2" style="font-size:11.5px">👁️‍🗨️ {{ ch.hiddenCatsTxt }}</p></sc-if>
+        <sc-if value="{{ ch.hasBoard }}" hint-placeholder-val="{{ false }}">
+          <div class="cins"><p class="h" style="margin:0">{{ T.boardT }}</p><sc-for list="{{ ch.board }}" as="b" hint-placeholder-count="2"><div class="cins-r"><span>{{ b.medal }} {{ b.name }}</span><b>{{ b.n }} ✓</b></div></sc-for></div>
+        </sc-if>
+        <sc-if value="{{ ch.hasDone }}" hint-placeholder-val="{{ false }}">
+          <p class="h" style="margin:4px 0 0">{{ T.choresDoneT }}</p>
+          <div class="card" style="gap:6px;padding:10px 12px"><sc-for list="{{ ch.recentDone }}" as="x" hint-placeholder-count="2"><div class="row" style="gap:8px"><span class="grow"><span class="td-t td-done" style="display:block">{{ x.text }}</span><span class="td-g">{{ x.sub }}</span></span><button class="icb-s" onClick="{{ x.undo }}" aria-label="↺">↺</button></div></sc-for></div>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{ isSegCar }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ noCars }}" hint-placeholder-val="{{ false }}">
+          <div class="empty-h"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 16l1.5-5h11L19 16M4 16h16v3H4zM7 19v2M17 19v2M7.5 13.5h.01M16.5 13.5h.01"/></svg><p class="t1">{{ T.noCarT }}</p><p class="t2">{{ T.noCarS }}</p></div>
+        </sc-if>
+        <sc-for list="{{ cars }}" as="k" hint-placeholder-count="1">
+          <div class="carc">
+            <div class="row" style="gap:10px;align-items:flex-start">
+              <div class="grow"><p class="car-n">{{ k.name }}</p><sc-if value="{{ k.hasCarInfo }}" hint-placeholder-val="{{ false }}"><p class="car-i">{{ k.carInfo }}</p></sc-if><sc-if value="{{ k.hasPlate }}" hint-placeholder-val="{{ false }}"><span class="plate">{{ k.plate }}</span></sc-if></div>
+              <button class="car-ed" onClick="{{ k.edit }}" aria-label="{{ T.editBtn }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg></button>
+            </div>
+            <button class="odo" onClick="{{ k.updKm }}"><span class="odo-v">{{ k.kmTxt }}</span><span class="odo-s">{{ k.kmDate }} · {{ T.updKm }}</span></button>
+            <div class="car-stats">
+              <div><b>{{ k.kmplTxt }}</b><span>{{ T.consumption }}</span></div>
+              <div><b>{{ k.fuelMonthTxt }}</b><span>{{ T.fuelMonth }}</span></div>
+              <div><b>{{ k.servMonthTxt }}</b><span>{{ T.servMonth }}</span></div>
+            </div>
+            <div class="car-acts">
+              <button onClick="{{ k.addFuel }}">⛽ {{ T.fuelUp }}</button>
+              <button onClick="{{ k.addService }}">🔧 {{ T.logService }}</button>
+            </div>
+          </div>
+          <sc-if value="{{ k.hasIns }}" hint-placeholder-val="{{ false }}">
+            <div class="cins">
+              <p class="h" style="margin:0">{{ T.carProfile }}</p>
+              <sc-for list="{{ k.ins }}" as="x" hint-placeholder-count="3"><div class="cins-r"><span>{{ x.k }}</span><b>{{ x.v }}</b></div></sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ k.hasMissing }}" hint-placeholder-val="{{ false }}"><button class="miss" onClick="{{ k.edit }}">✚ {{ k.missingTxt }}</button></sc-if>
+          <div class="fa">
+            <div class="row" style="justify-content:space-between"><p class="h" style="margin:0">{{ T.fuelAnalysis }}</p><span class="t2" style="font-size:11.5px">{{ T.costPerKm }}: {{ k.fuelA.costKm }}</span></div>
+            <sc-if value="{{ k.fuelA.need }}" hint-placeholder-val="{{ false }}"><p class="t2" style="font-size:12.5px">{{ k.fuelA.needTxt }}</p></sc-if>
+            <sc-if value="{{ k.fuelA.has }}" hint-placeholder-val="{{ true }}">
+              <div class="fa-nums">
+                <div><b>{{ k.fuelA.last }}</b><span>{{ T.lastTank }} · {{ k.fuelA.lastDist }}</span><span>{{ k.fuelA.lastL100 }}</span></div>
+                <div><b>{{ k.fuelA.avg }}</b><span>{{ T.yourAvg }}</span></div>
+              </div>
+              <svg class="fa-chart" viewBox="0 0 300 74" preserveAspectRatio="none" aria-hidden="true">
+                <sc-for list="{{ k.fuelA.bars }}" as="b" hint-placeholder-count="4"><rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}" rx="3" fill="{{ b.fill }}"/></sc-for>
+                <sc-if value="{{ k.fuelA.hasAvgLine }}" hint-placeholder-val="{{ false }}"><line x1="0" x2="300" y1="{{ k.fuelA.avgY }}" y2="{{ k.fuelA.avgY }}" stroke="var(--sub)" stroke-width="1" stroke-dasharray="4 4"/></sc-if>
+              </svg>
+              <div class="fa-lbls"><sc-for list="{{ k.fuelA.bars }}" as="b" hint-placeholder-count="4"><span>{{ b.lbl }}</span></sc-for></div>
+              <sc-if value="{{ k.fuelA.flagBad }}" hint-placeholder-val="{{ false }}">
+                <div class="fa-flag">
+                  <b>⚠️ {{ k.fuelA.flagTxt }}</b>
+                  <span class="t2" style="font-size:12px">{{ T.checkThese }}</span>
+                  <sc-for list="{{ k.fuelA.causes }}" as="x" hint-placeholder-count="3"><span class="fa-c">• {{ x.t }}</span></sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ k.fuelA.flagOdd }}" hint-placeholder-val="{{ false }}"><p class="fa-note">ℹ️ {{ k.fuelA.flagTxt }}</p></sc-if>
+              <sc-if value="{{ k.fuelA.flagOk }}" hint-placeholder-val="{{ false }}"><p class="fa-ok">{{ k.fuelA.okTxt }}</p></sc-if>
+            </sc-if>
+            <sc-if value="{{ k.fuelA.hasHist }}" hint-placeholder-val="{{ false }}">
+              <p class="lbl" style="margin:4px 0 0">{{ T.fillUps }}</p>
+              <sc-for list="{{ k.fuelA.hist }}" as="f" hint-placeholder-count="2">
+                <div class="fh"><span class="grow"><span class="t1" style="display:block;font-size:13.5px">{{ f.d }} · {{ f.amt }}</span><span class="t2" style="font-size:11.5px">{{ f.sub }}</span></span>
+                  <sc-if value="{{ f.hasK }}" hint-placeholder-val="{{ false }}"><span class="{{ f.kCls }}">{{ f.kmpl }}</span></sc-if>
+                  <button class="icb-s" onClick="{{ f.del }}" aria-label="{{ T.del }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></div>
+              </sc-for>
+            </sc-if>
+          </div>
+          <div class="row" style="justify-content:space-between;margin:2px 2px -4px"><p class="h" style="margin:0">{{ T.maintSched }}</p><span class="{{ k.urgentCls }}">{{ k.urgentTxt }}</span></div>
+          <div class="mlist">
+            <sc-for list="{{ k.items }}" as="m" hint-placeholder-count="3">
+              <div class="mi2">
+                <button class="mi2-main" onClick="{{ m.edit }}">
+                  <span class="t1" style="display:block">{{ m.name }}</span>
+                  <span class="{{ m.stCls }}">{{ m.status }}</span>
+                  <svg class="{{ m.barCls }}" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="100" height="6" rx="3" fill="currentColor" fill-opacity=".15"/><rect x="0" y="0" width="{{ m.pct }}" height="6" rx="3" fill="currentColor"/></svg>
+                  <span class="t2" style="font-size:11px">{{ m.every }}</span>
+                </button>
+                <button class="mdone" onClick="{{ m.done }}">{{ T.doneBtn }}</button>
+              </div>
+            </sc-for>
+          </div>
+          <button class="btn-g" style="min-height:40px" onClick="{{ k.addItem }}">+ {{ T.addMaintItem }}</button>
+          <sc-if value="{{ k.hasDocs }}" hint-placeholder-val="{{ false }}">
+            <p class="h" style="margin:4px 0 0">{{ T.carDocs }}</p>
+            <div class="card" style="gap:6px;padding:10px 12px">
+              <sc-for list="{{ k.docs }}" as="d" hint-placeholder-count="2"><div class="row" style="justify-content:space-between"><span class="t1" style="font-size:14px">{{ d.name }}</span><span class="t2">{{ d.exp }}</span></div></sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ k.hasHistory }}" hint-placeholder-val="{{ false }}">
+            <p class="h" style="margin:4px 0 0">{{ T.serviceLog }}</p>
+            <div class="card" style="gap:6px;padding:10px 12px">
+              <sc-for list="{{ k.history }}" as="x" hint-placeholder-count="2"><div><p class="t1" style="font-size:14px">{{ x.text }}</p><p class="t2" style="font-size:11.5px">{{ x.sub }}</p></div></sc-for>
+            </div>
+          </sc-if>
+        </sc-for>
+        <button class="btn-g" style="min-height:44px" onClick="{{ addCar }}">+ {{ T.addCarBtn }}</button>
+      </sc-if>
+
+      <sc-if value="{{ isSegMaint }}" hint-placeholder-val="{{ false }}">
+        <div class="mlist">
+          <sc-for list="{{ homeMaint }}" as="m" hint-placeholder-count="3">
+            <div class="mi2">
+              <button class="mi2-main" onClick="{{ m.edit }}">
+                <span class="t1" style="display:block">{{ m.name }}</span>
+                <span class="{{ m.stCls }}">{{ m.status }}</span>
+                <svg class="{{ m.barCls }}" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="100" height="6" rx="3" fill="currentColor" fill-opacity=".15"/><rect x="0" y="0" width="{{ m.pct }}" height="6" rx="3" fill="currentColor"/></svg>
+                <span class="t2" style="font-size:11px">{{ m.every }}<sc-if value="{{ m.hasLast }}" hint-placeholder-val="{{ false }}"> · {{ m.last }}</sc-if></span>
+              </button>
+              <button class="mdone" onClick="{{ m.done }}">{{ T.doneBtn }}</button>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ hasHomePresets }}" hint-placeholder-val="{{ true }}">
+          <p class="lbl">{{ T.suggested }}</p>
+          <div class="chips">
+            <sc-for list="{{ homePresetChips }}" as="p" hint-placeholder-count="4"><button class="chip chip-add" onClick="{{ p.add }}">+ {{ p.name }}</button></sc-for>
+          </div>
+        </sc-if>
+        <button class="btn-g" style="min-height:42px" onClick="{{ addHomeMaint }}">+ {{ T.customItem }}</button>
+      </sc-if>
+
+      <sc-if value="{{ isSegWarranty }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ hasWarranties }}" hint-placeholder-val="{{ false }}">
+          <div class="mlist">
+            <sc-for list="{{ warranties }}" as="w" hint-placeholder-count="2">
+              <button class="wr" onClick="{{ w.view }}">
+                <span class="grow" style="min-width:0;text-align:start"><span class="t1" style="display:block">{{ w.name }}</span><span class="t2" style="font-size:12px">{{ w.sub }} {{ w.bought }}</span>
+                  <span class="{{ w.stCls }}">{{ w.status }}</span></span>
+                <sc-if value="{{ w.hasImg }}" hint-placeholder-val="{{ false }}"><span class="wr-ic">🧾</span></sc-if>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <p class="t2" style="font-size:12px">{{ T.warrantyHint }}</p>
+        <button class="btn-g" style="min-height:44px" onClick="{{ addWarranty }}">+ {{ T.addWarrantyBtn }}</button>
+      </sc-if>
+
+      <sc-if value="{{ isSegContacts }}" hint-placeholder-val="{{ false }}">
+        <div class="row" style="gap:6px">
+          <sc-if value="{{ hasCtSearch }}" hint-placeholder-val="{{ false }}"><input class="in-s grow" type="search" placeholder="{{ T.searchPh }}" value="{{ ctSearch }}" onChange="{{ onCtSearch }}"></sc-if>
+          <button class="chip" style="margin-inline-start:auto" onClick="{{ openGroups }}">⚙︎ {{ T.groupsBtn }}</button>
+        </div>
+        <sc-if value="{{ noCtMatch }}" hint-placeholder-val="{{ false }}"><p class="t2" style="text-align:center;padding:14px 0">{{ T.noMatchT }}</p></sc-if>
+        <sc-for list="{{ contactGroups }}" as="g" hint-placeholder-count="2">
+          <p class="grp-h">{{ g.name }}</p>
+          <div class="mlist">
+            <sc-for list="{{ g.items }}" as="k" hint-placeholder-count="1">
+              <div class="ct" onPointerDown="{{ k.down }}" onPointerUp="{{ k.up }}" onPointerMove="{{ k.move }}" onPointerLeave="{{ k.up }}" onContextMenu="{{ k.menu }}">
+                <button class="grow ct-main" onClick="{{ k.edit }}"><span class="t1" style="display:block">{{ k.name }}</span><span class="t2" style="direction:ltr;display:block;text-align:right">{{ k.phone }}</span>
+                  <sc-if value="{{ k.hasNote }}" hint-placeholder-val="{{ false }}"><span class="t2" style="font-size:11.5px">{{ k.note }}</span></sc-if></button>
+                <a class="ct-b ct-wa" href="{{ k.wa }}" aria-label="WhatsApp">WA</a>
+                <a class="ct-b" href="{{ k.tel }}" aria-label="{{ T.callT }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></a>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+        <p class="t2" style="font-size:12px">{{ T.contactsHint }}</p>
+        <button class="btn-g" style="min-height:44px" onClick="{{ addContact }}">+ {{ T.addContactBtn }}</button>
       </sc-if>
     </sc-if>
 
     <!-- ============ المشتريات ============ -->
     <sc-if value="{{ isShop }}" hint-placeholder-val="{{ false }}">
       <!-- مصروف الشهر: مخفي افتراضياً -->
+      <sc-if value="{{ show.shopSpend }}" hint-placeholder-val="{{ true }}">
       <button class="spend-bar" onClick="{{ toggleSpend }}" aria-expanded="{{ spendOpen }}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M16 15h2"/></svg>
         <span class="grow">{{ T.monthSpend }}</span>
@@ -434,6 +972,7 @@
         <div class="spend-box">
           <div class="row" style="gap:8px">
             <p class="money grow" style="font-size:18px">{{ spentTxt }}</p>
+            <button class="lnk" onClick="{{ openReport }}">{{ T.reportBtn }}</button>
             <button class="lnk" onClick="{{ toggleBreak }}">{{ breakBtn }}</button>
           </div>
           <svg class="bar-svg" style="height:5px" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true">
@@ -441,7 +980,34 @@
             <rect x="0" y="0" width="{{ budgetPct }}" height="8" rx="4" fill="currentColor"/>
           </svg>
           <p class="t2">{{ budgetLine }}</p>
+          <sc-if value="{{ hasSpendSplit }}" hint-placeholder-val="{{ false }}"><p class="t2" style="font-size:12px">{{ spendSplit }}</p></sc-if>
         </div>
+        <sc-if value="{{ hasRecur }}" hint-placeholder-val="{{ false }}">
+          <div class="card" style="gap:6px">
+            <p class="h" style="margin:0">{{ T.fixedExp }}</p>
+            <sc-for list="{{ recurRows }}" as="r" hint-placeholder-count="2">
+              <div class="row rc" style="gap:10px">
+                <div class="tile-s ec"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ r.icon }}"/></svg></div>
+                <button class="grow rc-n" onClick="{{ r.edit }}"><span class="t1" style="display:block">{{ r.name }}</span><span class="t2">{{ r.dayTxt }} · {{ r.amtTxt }}</span>
+                  <sc-if value="{{ r.hasCi }}" hint-placeholder-val="{{ false }}"><span class="ci-l">{{ r.ciLine }}</span><svg class="ci-b" viewBox="0 0 100 5" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="100" height="5" rx="2.5" fill="currentColor" fill-opacity=".15"/><rect x="0" y="0" width="{{ r.ciPct }}" height="5" rx="2.5" fill="currentColor"/></svg></sc-if></button>
+                <button class="{{ r.stCls }}" onClick="{{ r.pay }}">{{ r.stTxt }}</button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ hasRecentExp }}" hint-placeholder-val="{{ false }}">
+          <div class="card" style="gap:6px">
+            <p class="h" style="margin:0">{{ T.recentExpT }}</p>
+            <sc-for list="{{ recentExp }}" as="x" hint-placeholder-count="2">
+              <div class="row" style="gap:8px">
+                <div class="grow"><p class="t1" style="font-size:14px">{{ x.name }}</p><p class="t2" style="font-size:11.5px">{{ x.sub }}</p></div>
+                <span class="amt">{{ x.amtTxt }}</span>
+                <button class="icb-s" onClick="{{ x.del }}" aria-label="{{ T.del }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <button class="btn-g" style="min-height:44px" onClick="{{ openExp }}">{{ T.addExp }}</button>
       </sc-if>
       <sc-if value="{{ showBreak }}" hint-placeholder-val="{{ false }}">
         <div class="card">
@@ -463,6 +1029,7 @@
         </div>
       </sc-if>
 
+      </sc-if>
       <!-- إضافة صنف -->
       <div class="addbox">
         <div class="row" style="gap:6px">
@@ -471,6 +1038,33 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </button>
         </div>
+        <sc-if value="{{ hasSuggest }}" hint-placeholder-val="{{ false }}">
+          <div class="sugg">
+            <sc-for list="{{ suggest }}" as="g" hint-placeholder-count="3">
+              <button class="sugg-it" onClick="{{ g.pick }}">
+                <sc-for list="{{ g.icons }}" as="ic" hint-placeholder-count="1"><svg width="{{ ic.s }}" height="{{ ic.s }}" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ ic.d1 }}" fill="{{ ic.f }}" stroke="{{ ic.c }}" stroke-width="1.4" stroke-linejoin="round"/><path d="{{ ic.d2 }}" fill="none" stroke="{{ ic.c }}" stroke-width="1.3" stroke-linecap="round"/></svg></sc-for>
+                <span class="grow">{{ g.name }}</span>
+                <span class="b-s">{{ g.unitTxt }}</span>
+                <span class="t2">{{ g.storeTxt }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ showNewItem }}" hint-placeholder-val="{{ false }}">
+          <span class="guess">{{ T.newItemTitle }}</span>
+          <div class="chips">
+            <sc-for list="{{ draftUnits }}" as="u" hint-placeholder-count="8">
+              <button class="{{ u.cls }}" onClick="{{ u.sel }}">{{ u.name }}</button>
+            </sc-for>
+          </div>
+          <sc-if value="{{ hasDraftUnit }}" hint-placeholder-val="{{ false }}">
+            <div class="row" style="gap:6px;justify-content:flex-start">
+              <button class="qbtn" onClick="{{ draftMinus }}" aria-label="{{ T.lessQty }}">−</button>
+              <span class="qval">{{ draftQtyTxt }}</span>
+              <button class="qbtn" onClick="{{ draftPlus }}" aria-label="{{ T.moreQty }}">+</button>
+            </div>
+          </sc-if>
+        </sc-if>
         <sc-if value="{{ hasDraft }}" hint-placeholder-val="{{ false }}">
           <input class="in-s" aria-label="{{ T.descPh }}" placeholder="{{ T.descPh }}" value="{{ draftDesc }}" onChange="{{ onDraftDesc }}">
           <span class="guess">{{ T.willGo }} <b>{{ draftCatName }}</b> {{ T.change }}</span>
@@ -483,6 +1077,7 @@
         </sc-if>
       </div>
 
+      <sc-if value="{{ show.shopQuick }}" hint-placeholder-val="{{ true }}">
       <!-- اختيار سريع -->
       <div class="grp" style="gap:5px">
         <p class="h" style="margin:2px 2px 0">{{ T.quickPick }} <span class="t2" style="font-weight:400;margin-inline-end:auto">{{ T.quickHint }}</span></p>
@@ -512,21 +1107,53 @@
         </sc-if>
       </div>
 
-      <!-- فلتر + طريقة العرض -->
-      <div class="row" style="gap:8px">
-        <div class="scrollx grow">
-          <sc-for list="{{ shopFilters }}" as="c" hint-placeholder-count="4">
-            <button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button>
-          </sc-for>
+      </sc-if>
+      <!-- رأس القائمة: العنوان + الأدوات -->
+      <div class="lhead">
+        <div class="grow">
+          <p class="h" style="margin:0;justify-content:flex-start">{{ T.listTitle }}</p>
+          <p class="t2">{{ leftCountTxt }}</p>
         </div>
-        <div class="seg" role="group" aria-label="{{ T.viewAria }}">
-          <button class="{{ viewGridCls }}" onClick="{{ setGrid }}" aria-label="{{ T.viewGrid }}">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+        <div class="tools">
+          <sc-if value="{{ hasLeft }}" hint-placeholder-val="{{ true }}">
+            <button class="tool" onClick="{{ shareListFn }}" aria-label="{{ T.shareList }}" title="{{ T.shareList }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.4M8.3 13.2l7.4 4.4"/></svg>
+            </button>
+            <button class="tool tool-acc" onClick="{{ remindShopFn }}" aria-label="{{ T.remindShop }}" title="{{ T.remindShop }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9a5 5 0 0 1 10 0c0 5.5 2 7 2 7H5s2-1.5 2-7M10.5 19.5a1.7 1.7 0 0 0 3 0M2.5 7.5 1 6M2.5 11H1M21.5 7.5 23 6M21.5 11H23"/></svg>
+            </button>
+            <span class="tool-sep"></span>
+          </sc-if>
+          <label class="tool" aria-label="{{ T.receiptBtn }}" title="{{ T.receiptBtn }}">
+            <input type="file" accept="image/*" style="display:none" onChange="{{ scanReceipt }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2zM9 7h6M9 11h6M9 15h4"/></svg>
+          </label>
+          <button class="tool" onClick="{{ startDictation }}" aria-label="{{ T.dictBtn }}" title="{{ T.dictBtn }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>
           </button>
-          <button class="{{ viewListCls }}" onClick="{{ setList }}" aria-label="{{ T.viewList }}">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          <button class="tool" onClick="{{ openShopAn }}" aria-label="{{ T.shopAnT }}" title="{{ T.shopAnT }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg>
+          </button>
+          <button class="tool" onClick="{{ openExport }}" aria-label="{{ T.exportBtn }}" title="{{ T.exportBtn }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>
+          </button>
+          <span class="tool-sep"></span>
+          <button class="tool" onClick="{{ toggleView }}" aria-label="{{ viewLabel }}" title="{{ viewLabel }}">
+            <sc-if value="{{ isGridView }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </sc-if>
+            <sc-if value="{{ isListView }}" hint-placeholder-val="{{ true }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+            </sc-if>
           </button>
         </div>
+      </div>
+
+      <!-- فلتر المحلات -->
+      <div class="tabs">
+        <sc-for list="{{ shopFilters }}" as="c" hint-placeholder-count="4">
+          <button class="{{ c.tabCls }}" onClick="{{ c.sel }}">{{ c.name }}</button>
+        </sc-for>
       </div>
 
       <!-- القائمة متقسمة -->
@@ -556,6 +1183,9 @@
                   <sc-if value="{{ s.hasPrice }}" hint-placeholder-val="{{ false }}">
                     <span class="{{ s.priceCls }}">{{ s.priceTxt }}</span>
                   </sc-if>
+                  <sc-if value="{{ s.needPrice }}" hint-placeholder-val="{{ false }}">
+                    <button class="needp" onClick="{{ s.setPrice }}">{{ T.setPriceBtn }}</button>
+                  </sc-if>
                   <span class="{{ s.byCls }}" title="{{ s.by }}" aria-label="{{ s.byAria }}">{{ s.byInit }}</span>
                 </div>
               </div>
@@ -564,7 +1194,7 @@
         </div>
       </sc-for>
       <sc-if value="{{ hasDone }}" hint-placeholder-val="{{ true }}">
-        <button class="btn-g" style="min-height:48px" onClick="{{ clearDone }}">{{ T.clearDone }}</button>
+        <button class="btn-g" style="min-height:48px" onClick="{{ clearDone }}">{{ clearLbl }}</button>
       </sc-if>
     </sc-if>
   </div>
@@ -576,16 +1206,18 @@
   </sc-if>
 
   <nav class="nav" aria-label="{{ T.navAria }}">
-    <button class="{{ nav.today }}" onClick="{{ go.today }}">
+    <button class="{{ nav.today }}" onClick="{{ go.today }}" style="order:{{ nord.today }}">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>{{ T.navToday }}</button>
-    <button class="{{ nav.kitchen }}" onClick="{{ go.kitchen }}">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>{{ T.navKitchen }}</button>
-    <button class="{{ nav.sched }}" onClick="{{ go.sched }}">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>{{ T.navSched }}</button>
-    <button class="{{ nav.cards }}" onClick="{{ go.cards }}">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="12" r="2.2"/><path d="M14 10h4M14 14h3"/></svg>{{ T.navCards }}</button>
-    <button class="{{ nav.shop }}" onClick="{{ go.shop }}">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2.4 11h11L21 8H6.2"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>{{ T.navShop }}</button>
+<sc-if value="{{ show.sched }}" hint-placeholder-val="{{ true }}">    <button class="{{ nav.sched }}" onClick="{{ go.sched }}" style="order:{{ nord.sched }}" onPointerDown="{{ navHold.sched.down }}" onPointerUp="{{ navHold.sched.up }}" onPointerLeave="{{ navHold.sched.up }}" onPointerMove="{{ navHold.sched.move }}" onContextMenu="{{ navHold.sched.menu }}">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>{{ T.navSched }}</button></sc-if>
+<sc-if value="{{ show.cards }}" hint-placeholder-val="{{ true }}">    <button class="{{ nav.cards }}" onClick="{{ go.cards }}" style="order:{{ nord.cards }}" onPointerDown="{{ navHold.cards.down }}" onPointerUp="{{ navHold.cards.up }}" onPointerLeave="{{ navHold.cards.up }}" onPointerMove="{{ navHold.cards.move }}" onContextMenu="{{ navHold.cards.menu }}">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="12" r="2.2"/><path d="M14 10h4M14 14h3"/></svg>{{ T.navCards }}</button></sc-if>
+<sc-if value="{{ show.kitchen }}" hint-placeholder-val="{{ true }}">    <button class="{{ nav.kitchen }}" onClick="{{ go.kitchen }}" style="order:{{ nord.kitchen }}" onPointerDown="{{ navHold.kitchen.down }}" onPointerUp="{{ navHold.kitchen.up }}" onPointerLeave="{{ navHold.kitchen.up }}" onPointerMove="{{ navHold.kitchen.move }}" onContextMenu="{{ navHold.kitchen.menu }}">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>{{ T.navKitchen }}</button></sc-if>
+<sc-if value="{{ show.shop }}" hint-placeholder-val="{{ true }}">    <button class="{{ nav.shop }}" onClick="{{ go.shop }}" style="order:{{ nord.shop }}" onPointerDown="{{ navHold.shop.down }}" onPointerUp="{{ navHold.shop.up }}" onPointerLeave="{{ navHold.shop.up }}" onPointerMove="{{ navHold.shop.move }}" onContextMenu="{{ navHold.shop.menu }}">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2.4 11h11L21 8H6.2"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>{{ T.navShop }}</button></sc-if>
+<sc-if value="{{ show.home }}" hint-placeholder-val="{{ true }}">    <button class="{{ nav.home }}" onClick="{{ go.home }}" style="order:{{ nord.home }}" onPointerDown="{{ navHold.home.down }}" onPointerUp="{{ navHold.home.up }}" onPointerLeave="{{ navHold.home.up }}" onPointerMove="{{ navHold.home.move }}" onContextMenu="{{ navHold.home.menu }}">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg>{{ navHome }}</button></sc-if>
   </nav>
 
   <!-- ============ الشيتات ============ -->
@@ -613,9 +1245,60 @@
         <label class="lbl" for="ePrice">{{ T.pricePh }}</label>
         <input id="ePrice" class="in" type="number" inputmode="decimal" value="{{ edit.price }}" onChange="{{ onEditPrice }}">
         <div class="row" style="gap:8px">
-          <button class="btn" style="flex:2" onClick="{{ saveEdit }}">{{ T.save }}</button>
-          <button class="btn-g" style="flex:1;min-height:48px;color:var(--warn)" onClick="{{ deleteEdit }}">{{ T.del }}</button>
+          <button class="btn grow" onClick="{{ saveEdit }}">{{ T.save }}</button>
+          <button class="icb icb-del icb-l" onClick="{{ deleteEdit }}" aria-label="{{ T.del }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
         </div>
+      </sc-if>
+
+      <!-- التقويم -->
+      <sc-if value="{{ isCal }}" hint-placeholder-val="{{ false }}">
+        <div class="row" style="justify-content:space-between">
+          <button class="qbtn" onClick="{{ calPrev }}" aria-label="{{ T.prevMonth }}">{{ T.prevG }}</button>
+          <p class="h" style="margin:0">{{ calTitle }}</p>
+          <button class="qbtn" onClick="{{ calNext }}" aria-label="{{ T.nextMonth }}">{{ T.nextG }}</button>
+        </div>
+        <div class="cal">
+          <sc-for list="{{ calHead }}" as="hd" hint-placeholder-count="7"><span class="cal-h">{{ hd.n }}</span></sc-for>
+          <sc-for list="{{ calCells }}" as="c" hint-placeholder-count="30">
+            <button class="{{ c.cls }}" onClick="{{ c.pick }}"><span>{{ c.num }}</span><span class="{{ c.dot }}"></span></button>
+          </sc-for>
+        </div>
+        <button class="lnk" style="align-self:center" onClick="{{ calToday }}">{{ T.backToday }}</button>
+        <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}">
+        <p class="grp-h">{{ selTitle }}</p>
+        <div class="ilist">
+          <sc-for list="{{ dayItems }}" as="it" hint-placeholder-count="1">
+            <div class="it" onClick="{{ it.edit }}" style="cursor:pointer">
+              <div class="it-top">
+                <button class="{{ it.ckCls }}" onClick="{{ it.toggleDone }}" aria-label="{{ T.markDone }}"><sc-if value="{{ it.isDone }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></sc-if></button>
+              <span class="tile-xs {{ it.catCls }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ it.icon }}"/></svg></span>
+                <span class="{{ it.nameCls }}">{{ it.title }}</span>
+                <span class="it-desc"></span>
+                <span class="{{ it.pCls }}">{{ it.whoPill }}</span>
+                <span class="{{ it.bCls }}">{{ it.bTxt }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ noDayItems }}" hint-placeholder-val="{{ false }}"><p class="t2" style="padding:0 2px">{{ T.noDayItems }}</p></sc-if>
+        <sc-if value="{{ hasDayMeds }}" hint-placeholder-val="{{ false }}"><p class="t2" style="padding:0 2px">{{ dayMedsTxt }}</p></sc-if>
+        <sc-if value="{{ hasDayLog }}" hint-placeholder-val="{{ false }}">
+          <p class="grp-h">{{ T.doneTitle }}</p>
+          <div class="ilist">
+          <sc-for list="{{ dayLog }}" as="l" hint-placeholder-count="1">
+            <div class="it it-log">
+              <div class="it-top">
+                <span class="okmark"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></span>
+                <span class="it-name" style="cursor:default">{{ l.text }}</span>
+                <span class="it-desc">{{ l.kind }} · {{ l.time }} {{ l.byTxt }}</span>
+                <span class="{{ l.pCls }}">{{ l.whoPill }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+        <button class="lnk" style="align-self:flex-start" onClick="{{ addOnDayFn }}">{{ T.addOnDay }}</button>
+      </sc-if>
       </sc-if>
 
       <!-- الانضمام بكود -->
@@ -627,6 +1310,12 @@
 
       <!-- بطاقة -->
       <sc-if value="{{ isCardSheet }}" hint-placeholder-val="{{ false }}">
+        <p class="lbl">{{ T.cardKind }}</p>
+        <div class="chips">
+          <sc-for list="{{ cfKinds }}" as="c" hint-placeholder-count="4">
+            <button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button>
+          </sc-for>
+        </div>
         <p class="lbl">{{ T.cardType }}</p>
         <div class="chips">
           <sc-for list="{{ cfTypes }}" as="c" hint-placeholder-count="6">
@@ -639,11 +1328,30 @@
           <sc-for list="{{ cfWho }}" as="c" hint-placeholder-count="3">
             <button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button>
           </sc-for>
+            <button class="chip chip-add" onClick="{{ addPersonFrom }}">{{ T.addPersonChip }}</button>
         </div>
-        <label class="lbl" for="cNum">{{ T.cardNum }}</label>
-        <input id="cNum" class="in-s" style="direction:ltr;text-align:start" value="{{ cf.num }}" onChange="{{ cfNum }}">
-        <label class="lbl" for="cExp">{{ T.cardExp }}</label>
-        <input id="cExp" class="in-s" type="date" value="{{ cf.exp }}" onChange="{{ cfExp }}">
+        <sc-if value="{{ cfIsBank }}" hint-placeholder-val="{{ false }}">
+          <p class="alert" style="padding:8px 12px;font-size:12px;margin:0">{{ T.bankWarn }}</p>
+          <label class="lbl" for="cBank">{{ T.cardIssuer }}</label>
+          <input id="cBank" class="in-s" placeholder="{{ T.cardIssuerPh }}" value="{{ cf.issuer }}" onChange="{{ cfIssuer }}">
+          <label class="lbl" for="cIban">{{ T.ibanLbl }}</label>
+          <input id="cIban" class="in-s" autocapitalize="characters" style="direction:ltr;text-align:start;font-family:ui-monospace,monospace" placeholder="EG00 0000 0000 0000 0000 0000 0000 0" value="{{ cf.iban }}" onChange="{{ cfIban }}">
+          <sc-if value="{{ cfIbanBad }}" hint-placeholder-val="{{ false }}"><p class="t2" style="color:var(--warn);font-size:12px;margin-top:-8px">{{ T.ibanBad }}</p></sc-if>
+          <label class="lbl" for="cAcct">{{ T.acctLbl }}</label>
+          <input id="cAcct" class="in-s" inputmode="numeric" style="direction:ltr;text-align:start" value="{{ cf.acct }}" onChange="{{ cfAcct }}">
+          <label class="lbl" for="cNumB">{{ T.cardLast4 }}</label>
+          <input id="cNumB" class="in-s" inputmode="numeric" style="direction:ltr;text-align:start" value="{{ cf.num }}" onChange="{{ cfNum }}">
+          <label class="lbl" for="cExpM">{{ T.cardExpMonth }}</label>
+          <input id="cExpM" class="in-s" type="month" value="{{ cf.exp }}" onChange="{{ cfExp }}">
+          <label class="lbl" for="cHot">{{ T.hotline }}</label>
+          <input id="cHot" class="in-s" type="tel" style="direction:ltr;text-align:start" value="{{ cf.hotline }}" onChange="{{ cfHot }}">
+        </sc-if>
+        <sc-if value="{{ cfNotBank }}" hint-placeholder-val="{{ true }}">
+          <label class="lbl" for="cNum">{{ T.cardNum }}</label>
+          <input id="cNum" class="in-s" style="direction:ltr;text-align:start" value="{{ cf.num }}" onChange="{{ cfNum }}">
+          <label class="lbl" for="cExp">{{ T.cardExp }}</label>
+          <input id="cExp" class="in-s" type="date" value="{{ cf.exp }}" onChange="{{ cfExp }}">
+        </sc-if>
         <div class="row" style="gap:8px">
           <label class="btn-g filebtn" style="flex:1">{{ T.frontPhoto }}
             <sc-if value="{{ cfHasFront }}" hint-placeholder-val="{{ false }}"> {{ T.photoAdded }}</sc-if>
@@ -654,11 +1362,13 @@
             <input type="file" accept="image/*" onChange="{{ cfBack }}" style="display:none">
           </label>
         </div>
+        <div class="remb"><p class="lbl" style="margin:0">🔔 {{ T.remT }}</p><p class="t2" style="font-size:11.5px">{{ remDefCard }}</p><div class="chips"><sc-for list="{{ remCard }}" as="c" hint-placeholder-count="4"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div></div>
         <p class="lbl">{{ T.visibility }}</p>
-        <div class="chips">
-          <button class="{{ cfPrivCls }}" onClick="{{ cfPriv }}">{{ T.privateMe }}</button>
-          <button class="{{ cfShareCls }}" onClick="{{ cfShare }}">{{ T.sharedWife }}</button>
-        </div>
+        <button class="{{ vis.card.cls }}" onClick="{{ vis.card.toggle }}" aria-pressed="{{ vis.card.on }}">
+          <sc-if value="{{ vis.card.on }}" hint-placeholder-val="{{ true }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></sc-if>
+          <sc-if value="{{ vis.card.off }}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.6 5.1A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-2.6 3.5M6.6 6.6A17.4 17.4 0 0 0 2 12s3.6 7 10 7a10.4 10.4 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2M2 2l20 20"/></svg></sc-if>
+          <span class="vis-t"><b>{{ vis.card.txt }}</b><span>{{ vis.card.sub }}</span></span>
+        </button>
         <button class="btn" onClick="{{ saveCard }}">{{ T.save }}</button>
       </sc-if>
 
@@ -672,12 +1382,496 @@
         <sc-if value="{{ rv.hasImg }}" hint-placeholder-val="{{ false }}">
           <img class="cimg" src="{{ rv.img }}" alt="{{ rv.title }}">
         </sc-if>
-        <sc-if value="{{ rv.canDel }}" hint-placeholder-val="{{ false }}">
-          <button class="btn-g" style="min-height:44px;color:var(--warn)" onClick="{{ rv.del }}">{{ T.del }}</button>
-        </sc-if>
+        <div class="row" style="gap:8px">
+          <button class="btn grow icb-t" onClick="{{ rv.edit }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg></button>
+          <sc-if value="{{ rv.canDel }}" hint-placeholder-val="{{ false }}"><button class="icb icb-del icb-l" onClick="{{ rv.del }}" aria-label="{{ T.del }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></sc-if>
+        </div>
       </sc-if>
 
       <!-- سعر الصنف -->
+      <sc-if value="{{ isHfCar }}" hint-placeholder-val="{{ false }}">
+        <p class="h" style="margin:0">{{ T.carBasic }}</p>
+        <div class="row" style="gap:8px"><label class="lbl grow">{{ T.makeLbl }}<input class="in-s" type="text" value="{{ hf.make }}" onChange="{{ on.make }}" placeholder="{{ T.makePh }}"></label><label class="lbl grow">{{ T.modelLbl }}<input class="in-s" type="text" value="{{ hf.model }}" onChange="{{ on.model }}" placeholder="{{ T.modelPh }}"></label></div>
+        <div class="row" style="gap:8px"><label class="lbl grow">{{ T.yearLbl }}<input class="in-s" type="number" value="{{ hf.year }}" onChange="{{ on.year }}" inputmode="decimal"></label><label class="lbl grow">{{ T.colorLbl }}<input class="in-s" type="text" value="{{ hf.color }}" onChange="{{ on.color }}" ></label></div>
+        <div class="row" style="gap:8px"><label class="lbl grow">{{ T.plate }}<input class="in-s" type="text" value="{{ hf.plate }}" onChange="{{ on.plate }}" ></label><label class="lbl grow">{{ T.odometer }}<input class="in-s" type="number" value="{{ hf.km }}" onChange="{{ on.km }}" inputmode="decimal"></label></div>
+        <label class="lbl">{{ T.carNickname }}<input class="in-s" value="{{ hf.name }}" onChange="{{ on.name }}" placeholder="{{ T.carNicknamePh }}"></label>
+        <button class="more-t" onClick="{{ toggleCarMore }}">{{ T.carMore }} <span>{{ T.carMoreS }}</span></button>
+        <sc-if value="{{ carMoreOpen }}" hint-placeholder-val="{{ false }}">
+          <p class="lbl">{{ T.fuelTypeLbl }}</p>
+          <div class="chips"><sc-for list="{{ carFuelChips }}" as="c" hint-placeholder-count="5"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+          <div class="chips"><sc-for list="{{ carTransChips }}" as="c" hint-placeholder-count="2"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+          <div class="row" style="gap:8px"><label class="lbl grow">{{ T.tankLbl }}<input class="in-s" type="number" value="{{ hf.tankL }}" onChange="{{ on.tankL }}" inputmode="decimal"></label><label class="lbl grow">{{ T.ccLbl }}<input class="in-s" type="number" value="{{ hf.engineCC }}" onChange="{{ on.engineCC }}" inputmode="decimal"></label></div>
+          <label class="lbl grow">{{ T.ratedLbl }}<input class="in-s" type="number" value="{{ hf.ratedKmpl }}" onChange="{{ on.ratedKmpl }}" inputmode="decimal" placeholder="{{ T.ratedPh }}"></label>
+          <div class="row" style="gap:8px"><label class="lbl grow">{{ T.buyDateLbl }}<input class="in-s" type="date" value="{{ hf.buyDate }}" onChange="{{ on.buyDate }}" ></label><label class="lbl grow">{{ T.buyKmLbl }}<input class="in-s" type="number" value="{{ hf.buyKm }}" onChange="{{ on.buyKm }}" inputmode="decimal"></label></div>
+          <label class="lbl grow">{{ T.buyPriceLbl }}<input class="in-s" type="number" value="{{ hf.buyPrice }}" onChange="{{ on.buyPrice }}" inputmode="decimal"></label>
+          <div class="row" style="gap:8px"><label class="lbl grow">{{ T.licEndLbl }}<input class="in-s" type="date" value="{{ hf.licenseEnd }}" onChange="{{ on.licenseEnd }}" ></label><label class="lbl grow">{{ T.insEndLbl }}<input class="in-s" type="date" value="{{ hf.insuranceEnd }}" onChange="{{ on.insuranceEnd }}" ></label></div>
+        </sc-if>
+        <sc-if value="{{ hf.isNew }}" hint-placeholder-val="{{ true }}"><p class="t2" style="font-size:12px">{{ T.carPresetNote }}</p></sc-if>
+        <div class="row" style="gap:8px"><button class="btn grow" onClick="{{ saveCar }}">{{ T.save }}</button><sc-if value="{{ hf.isEdit }}" hint-placeholder-val="{{ false }}"><button class="icb icb-del icb-l" onClick="{{ delCar }}" aria-label="{{ T.del }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></sc-if></div>
+      </sc-if>
+      <sc-if value="{{ isHfKm }}" hint-placeholder-val="{{ false }}">
+        <label class="snap">{{ hf.snapTxt }}<input type="file" accept="image/*" capture="environment" onChange="{{ snapKm }}" style="display:none"></label>
+        <input class="price-in" type="number" inputmode="decimal" placeholder="0" value="{{ hf.km }}" onChange="{{ on.km }}" aria-label="{{ T.odometer }}">
+        <sc-if value="{{ hf.hasKmWarn }}" hint-placeholder-val="{{ false }}"><p class="t2" style="color:var(--warn);font-size:12px">{{ hf.kmWarn }}</p></sc-if>
+        <p class="t2" style="text-align:center">{{ T.kmUnitHint }}</p>
+        <button class="btn" onClick="{{ saveKm }}">{{ T.save }}</button>
+      </sc-if>
+      <sc-if value="{{ isHfFuel }}" hint-placeholder-val="{{ false }}">
+        <label class="lbl">{{ T.fuelCost }}<input class="price-in" type="number" inputmode="decimal" placeholder="0" value="{{ hf.cost }}" onChange="{{ on.cost }}"></label>
+        <div class="row" style="gap:8px">
+          <label class="lbl grow">{{ T.liters }}<input class="in-s" type="number" inputmode="decimal" value="{{ hf.liters }}" onChange="{{ on.liters }}"></label>
+          <label class="lbl grow">{{ T.odometer }}<input class="in-s" type="number" inputmode="decimal" value="{{ hf.km }}" onChange="{{ on.km }}"></label>
+        </div>
+        <label class="snap">{{ hf.snapTxt }}<input type="file" accept="image/*" capture="environment" onChange="{{ snapKm }}" style="display:none"></label>
+        <sc-if value="{{ hf.hasKmWarn }}" hint-placeholder-val="{{ false }}"><p class="t2" style="color:var(--warn);font-size:12px">{{ hf.kmWarn }}</p></sc-if>
+        <p class="t2" style="font-size:12px;margin-top:-6px">{{ T.fuelHint }}</p>
+        <sc-if value="{{ hf.hasPpl }}" hint-placeholder-val="{{ false }}"><p class="t2" style="font-size:12.5px;margin-top:-6px">{{ hf.ppl }}</p></sc-if>
+        <button class="{{ hf.fullCls }}" onClick="{{ hf.toggleFull }}" aria-pressed="{{ hf.isFull }}">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 22h12M4 9h10M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0V9.8a2 2 0 0 0-.6-1.4L18 5"/></svg>
+          <span class="vis-t"><b>{{ T.fullTank }}</b><span>{{ T.fullTankS }}</span></span>
+        </button>
+        <label class="lbl">{{ T.expDate }}<input class="in-s" type="date" value="{{ hf.d }}" onChange="{{ on.d }}"></label>
+        <button class="btn" onClick="{{ saveFuel }}">{{ T.save }}</button>
+      </sc-if>
+      <sc-if value="{{ isHfService }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ hf.hasServiceChips }}" hint-placeholder-val="{{ false }}">
+          <div class="chips"><sc-for list="{{ hf.serviceChips }}" as="c" hint-placeholder-count="4"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+        </sc-if>
+        <label class="lbl" for="hSvc">{{ T.serviceWhat }}</label>
+        <input id="hSvc" class="in-s" type="text" value="{{ hf.name }}" onChange="{{ on.name }}" >
+        <div class="row" style="gap:8px">
+          <label class="lbl grow">{{ T.expDate }}<input class="in-s" type="date" value="{{ hf.d }}" onChange="{{ on.d }}"></label>
+          <sc-if value="{{ hf.isCar }}" hint-placeholder-val="{{ false }}"><label class="lbl grow">{{ T.odometer }}<input class="in-s" type="number" inputmode="decimal" value="{{ hf.km }}" onChange="{{ on.km }}"></label></sc-if>
+        </div>
+        <sc-if value="{{ hf.isCar }}" hint-placeholder-val="{{ false }}"><label class="snap">{{ hf.snapTxt }}<input type="file" accept="image/*" capture="environment" onChange="{{ snapKm }}" style="display:none"></label><sc-if value="{{ hf.hasKmWarn }}" hint-placeholder-val="{{ false }}"><p class="t2" style="color:var(--warn);font-size:12px">{{ hf.kmWarn }}</p></sc-if></sc-if>
+        <label class="lbl">{{ T.costOpt }}<input class="in-s" type="number" inputmode="decimal" value="{{ hf.cost }}" onChange="{{ on.cost }}"></label>
+        <label class="lbl" for="hNote">{{ T.noteOpt }}</label>
+        <input id="hNote" class="in-s" type="text" value="{{ hf.note }}" onChange="{{ on.note }}" >
+        <button class="btn" onClick="{{ saveService }}">{{ T.save }}</button>
+      </sc-if>
+      <sc-if value="{{ isHfMaint }}" hint-placeholder-val="{{ false }}">
+        <label class="lbl" for="hMn">{{ T.maintItemLbl }}</label>
+        <input id="hMn" class="in-s" type="text" value="{{ hf.name }}" onChange="{{ on.name }}" >
+        <div class="row" style="gap:8px">
+          <label class="lbl grow">{{ T.everyMonths }}<input class="in-s" type="number" inputmode="decimal" value="{{ hf.everyMonths }}" onChange="{{ on.everyMonths }}"></label>
+          <sc-if value="{{ hf.isCar }}" hint-placeholder-val="{{ false }}"><label class="lbl grow">{{ T.everyKm }}<input class="in-s" type="number" inputmode="decimal" value="{{ hf.everyKm }}" onChange="{{ on.everyKm }}"></label></sc-if>
+        </div>
+        <div class="row" style="gap:8px">
+          <label class="lbl grow">{{ T.lastTime }}<input class="in-s" type="date" value="{{ hf.lastDate }}" onChange="{{ on.lastDate }}"></label>
+          <sc-if value="{{ hf.isCar }}" hint-placeholder-val="{{ false }}"><label class="lbl grow">{{ T.lastKm }}<input class="in-s" type="number" inputmode="decimal" value="{{ hf.lastKm }}" onChange="{{ on.lastKm }}"></label></sc-if>
+        </div>
+        <div class="remb"><p class="lbl" style="margin:0">🔔 {{ T.remT }}</p><p class="t2" style="font-size:11.5px">{{ remDefMaint }}</p><div class="chips"><sc-for list="{{ remHf }}" as="c" hint-placeholder-count="4"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div></div>
+        <div class="row" style="gap:8px"><button class="btn grow" onClick="{{ saveMaint }}">{{ T.save }}</button><sc-if value="{{ hf.isEdit }}" hint-placeholder-val="{{ false }}"><button class="icb icb-del icb-l" onClick="{{ delMaint }}" aria-label="{{ T.del }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></sc-if></div>
+      </sc-if>
+      <sc-if value="{{ isHfWarranty }}" hint-placeholder-val="{{ false }}">
+        <label class="lbl" for="hWn">{{ T.deviceName }}</label>
+        <input id="hWn" class="in-s" type="text" value="{{ hf.name }}" onChange="{{ on.name }}" placeholder="{{ T.devicePh }}">
+        <div class="row" style="gap:8px">
+          <label class="lbl grow">{{ T.brandLbl }}<input class="in-s" value="{{ hf.brand }}" onChange="{{ on.brand }}"></label>
+          <label class="lbl grow">{{ T.storeLbl }}<input class="in-s" value="{{ hf.store }}" onChange="{{ on.store }}"></label>
+        </div>
+        <div class="row" style="gap:8px">
+          <label class="lbl grow">{{ T.buyDate }}<input class="in-s" type="date" value="{{ hf.buyDate }}" onChange="{{ on.buyDate }}"></label>
+          <label class="lbl grow">{{ T.priceShort }}<input class="in-s" type="number" inputmode="decimal" value="{{ hf.price }}" onChange="{{ on.price }}"></label>
+        </div>
+        <p class="lbl">{{ T.warrantyLen }}</p>
+        <div class="chips"><sc-for list="{{ wMonths }}" as="c" hint-placeholder-count="5"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+        <label class="lbl">{{ T.serviceCenter }}<input class="in-s" type="tel" style="direction:ltr;text-align:start" value="{{ hf.phone }}" onChange="{{ on.phone }}"></label>
+        <label class="btn-g filebtn">{{ T.invoicePhoto }}<sc-if value="{{ hf.hasImg }}" hint-placeholder-val="{{ false }}"> {{ T.photoAdded }}</sc-if>
+          <input type="file" accept="image/*" onChange="{{ on.img }}" style="display:none"></label>
+        <div class="remb"><p class="lbl" style="margin:0">🔔 {{ T.remT }}</p><p class="t2" style="font-size:11.5px">{{ remDefWarranty }}</p><div class="chips"><sc-for list="{{ remHf }}" as="c" hint-placeholder-count="4"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div></div>
+        <div class="row" style="gap:8px"><button class="btn grow" onClick="{{ saveWarranty }}">{{ T.save }}</button><sc-if value="{{ hf.isEdit }}" hint-placeholder-val="{{ false }}"><button class="icb icb-del icb-l" onClick="{{ delWarranty }}" aria-label="{{ T.del }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></sc-if></div>
+      </sc-if>
+      <sc-if value="{{ isWView }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ wvHasImg }}" hint-placeholder-val="{{ false }}"><img class="cimg" style="max-height:60vh" src="{{ wvImg }}" alt="{{ wvName }}"></sc-if>
+        <button class="btn-g icb-t" style="min-height:44px" onClick="{{ wvEdit }}" aria-label="{{ T.editBtn }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg></button>
+      </sc-if>
+      <sc-if value="{{ isHfContact }}" hint-placeholder-val="{{ false }}">
+        <p class="lbl">{{ T.groupLbl }}</p>
+        <div class="chips"><sc-for list="{{ roleChips }}" as="c" hint-placeholder-count="6"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for>
+          <button class="chip chip-add" onClick="{{ startAddGroup }}">+ {{ T.newGroup }}</button></div>
+        <sc-if value="{{ addingGroup }}" hint-placeholder-val="{{ false }}">
+          <div class="row" style="gap:6px"><input class="in-s grow" placeholder="{{ T.groupPh }}" value="{{ gDraft }}" onChange="{{ onGDraft }}"><button class="btn-s" style="width:auto;padding:0 14px;font:inherit;font-size:13px" onClick="{{ addGroupInForm }}">{{ T.add }}</button></div>
+        </sc-if>
+        <button class="snap" onClick="{{ pickFromPhone }}">📇 {{ T.fromContacts }}</button>
+        <label class="lbl" for="hCn">{{ T.contactName }}</label>
+        <input id="hCn" class="in-s" type="text" value="{{ hf.name }}" onChange="{{ on.name }}" >
+        <label class="lbl" for="hCp">{{ T.phoneLbl }}</label>
+        <input id="hCp" class="in-s" type="tel" value="{{ hf.phone }}" onChange="{{ on.phone }}" style="direction:ltr;text-align:start">
+        <label class="lbl" for="hCnote">{{ T.noteOpt }}</label>
+        <input id="hCnote" class="in-s" type="text" value="{{ hf.note }}" onChange="{{ on.note }}" >
+        <div class="row" style="gap:8px"><button class="btn grow" onClick="{{ saveContact }}">{{ T.save }}</button><sc-if value="{{ hf.isEdit }}" hint-placeholder-val="{{ false }}"><button class="icb icb-del icb-l" onClick="{{ delContact }}" aria-label="{{ T.del }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></sc-if></div>
+      </sc-if>
+
+      <sc-if value="{{ isChore }}" hint-placeholder-val="{{ false }}">
+        <input class="in" value="{{ chfv.text }}" onChange="{{ chfv.onText }}" aria-label="{{ T.choresT }}">
+        <div class="chips"><sc-for list="{{ chfv.cats }}" as="c" hint-placeholder-count="4"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+        <p class="lbl">{{ T.priLblT }}</p>
+        <div class="chips"><sc-for list="{{ chfv.pri }}" as="c" hint-placeholder-count="3"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+        <p class="lbl">{{ T.forLbl }}</p>
+        <div class="chips"><sc-for list="{{ chfv.who }}" as="c" hint-placeholder-count="3"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+        <label class="lbl">{{ T.dueOpt }}<input class="in-s" type="date" value="{{ chfv.d }}" onChange="{{ chfv.onD }}" style="max-width:180px"></label>
+        <p class="lbl">{{ T.repLbl }}</p>
+        <div class="chips"><sc-for list="{{ chfv.rep }}" as="c" hint-placeholder-count="3"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+        <button class="btn" onClick="{{ saveChore }}">{{ T.save }}</button>
+      </sc-if>
+      <sc-if value="{{ isChCats }}" hint-placeholder-val="{{ false }}">
+        <p class="t2" style="font-size:12px;margin:0">{{ T.catsNote }}</p>
+        <div class="card" style="gap:4px;padding:8px 10px" data-dl="chcats">
+          <sc-for list="{{ ch.catRows }}" as="g" hint-placeholder-count="4">
+            <div class="ccr" data-di="{{ g.id }}">
+              <span class="dgrip"><svg width="12" height="16" viewBox="0 0 12 16" fill="currentColor" aria-hidden="true"><circle cx="3" cy="3" r="1.4"/><circle cx="9" cy="3" r="1.4"/><circle cx="3" cy="8" r="1.4"/><circle cx="9" cy="8" r="1.4"/><circle cx="3" cy="13" r="1.4"/><circle cx="9" cy="13" r="1.4"/></svg></span>
+              <input class="in-s ccr-e" value="{{ g.emoji }}" onChange="{{ g.onEmoji }}" aria-label="emoji">
+              <input class="in-s grow" value="{{ g.name }}" onChange="{{ g.onName }}" aria-label="{{ T.catsBtn }}">
+              <span class="t2 ccr-n">{{ g.count }}</span>
+              <button class="{{ g.todayCls }}" onClick="{{ g.toggleToday }}" aria-label="{{ T.inTodayLbl }}" title="{{ T.inTodayLbl }}"><i></i></button>
+              <button class="{{ g.delCls }}" onClick="{{ g.del }}" aria-label="{{ T.del }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+            </div>
+          </sc-for>
+        </div>
+        <div class="td-add"><input class="in-s ccr-e" placeholder="{{ T.emojiPh }}" value="{{ ch.ccEmoji }}" onChange="{{ ch.onCcEmoji }}" aria-label="emoji"><input class="in-s grow" placeholder="{{ T.newCatPh }}" value="{{ ch.ccDraft }}" onChange="{{ ch.onCcDraft }}"><button class="btn-s" onClick="{{ ch.addCat }}" aria-label="{{ T.add }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
+      </sc-if>
+      <sc-if value="{{ isTodo }}" hint-placeholder-val="{{ false }}">
+        <input class="in" value="{{ tdfv.text }}" onChange="{{ tdfv.onText }}" aria-label="{{ T.todosT }}">
+        <p class="lbl">{{ T.priLblT }}</p>
+        <div class="chips"><sc-for list="{{ tdfv.pri }}" as="c" hint-placeholder-count="3"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+        <p class="lbl">{{ T.whenLbl2 }}</p>
+        <div class="row" style="gap:6px"><sc-for list="{{ tdfv.when }}" as="c" hint-placeholder-count="2"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for><input class="in-s grow" type="date" value="{{ tdfv.d }}" onChange="{{ tdfv.onD }}"></div>
+        <label class="lbl">{{ T.tmOpt }}<input class="in-s" type="time" value="{{ tdfv.tm }}" onChange="{{ tdfv.onTm }}" style="max-width:150px"></label>
+        <p class="lbl">{{ T.forLbl }}</p>
+        <div class="chips"><sc-for list="{{ tdfv.who }}" as="c" hint-placeholder-count="3"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+        <button class="btn" onClick="{{ saveTodo }}">{{ T.save }}</button>
+      </sc-if>
+      <sc-if value="{{ isDossier }}" hint-placeholder-val="{{ false }}">
+        <button class="btn" onClick="{{ dos.add }}">+ {{ T.dosAddBtn }}</button>
+        <sc-if value="{{ dos.has }}" hint-placeholder-val="{{ false }}">
+          <div class="chips"><sc-for list="{{ dos.cats }}" as="c" hint-placeholder-count="3"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+        </sc-if>
+        <sc-if value="{{ dos.empty }}" hint-placeholder-val="{{ false }}"><div class="empty-h"><span style="font-size:36px">📁</span><p class="t1">{{ T.dosEmptyT }}</p><p class="t2">{{ T.dosEmptyS }}</p></div></sc-if>
+        <div class="mlist">
+          <sc-for list="{{ dos.rows }}" as="r" hint-placeholder-count="3">
+            <button class="dos-row" onClick="{{ r.open }}">
+              <sc-if value="{{ r.hasThumb }}" hint-placeholder-val="{{ false }}"><img class="dos-th" src="{{ r.thumb }}" alt=""></sc-if>
+              <sc-if value="{{ r.noThumb }}" hint-placeholder-val="{{ false }}"><span class="dos-th dos-th-e">📄</span></sc-if>
+              <span class="grow" style="min-width:0;text-align:start"><span class="t1" style="display:block">{{ r.title }}</span><span class="t2" style="font-size:11.5px">{{ r.sub }}</span></span>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isDosAdd }}" hint-placeholder-val="{{ false }}">
+        <div class="chips"><sc-for list="{{ dosf.cats }}" as="c" hint-placeholder-count="6"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+        <label class="lbl">{{ T.dosTitleLbl }}<input class="in-s" value="{{ dosf.title }}" onChange="{{ dosf.onTitle }}" placeholder="{{ T.dosTitlePh }}"></label>
+        <label class="lbl">{{ T.expDate }}<input class="in-s" type="date" value="{{ dosf.d }}" onChange="{{ dosf.onD }}"></label>
+        <label class="snap">📷 {{ T.dosPhotos }}<input type="file" accept="image/*" multiple="true" onChange="{{ dosf.onPages }}" style="display:none"></label>
+        <sc-if value="{{ dosf.hasPages }}" hint-placeholder-val="{{ false }}">
+          <div class="dos-pages"><sc-for list="{{ dosf.pages }}" as="p" hint-placeholder-count="2"><span class="dos-pg"><img src="{{ p.img }}" alt=""><button onClick="{{ p.del }}" aria-label="{{ T.del }}">×</button></span></sc-for></div>
+        </sc-if>
+        <label class="lbl">{{ T.dosNoteLbl }}<input class="in-s" value="{{ dosf.note }}" onChange="{{ dosf.onNote }}" placeholder="{{ T.dosNotePh }}"></label>
+        <button class="{{ dosf.visCls }}" onClick="{{ dosf.toggleVis }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span class="vis-t"><b>{{ dosf.visTxt }}</b></span></button>
+        <button class="btn" onClick="{{ saveDos }}">{{ T.save }}</button>
+      </sc-if>
+      <sc-if value="{{ isDosView }}" hint-placeholder-val="{{ false }}">
+        <p class="t2">{{ dv.sub }}</p>
+        <sc-if value="{{ dv.hasNote }}" hint-placeholder-val="{{ false }}"><p class="insight">{{ dv.note }}</p></sc-if>
+        <sc-if value="{{ dv.hasImg }}" hint-placeholder-val="{{ false }}"><img class="dos-big" src="{{ dv.img }}" alt="{{ dv.title }}"></sc-if>
+        <sc-if value="{{ dv.multi }}" hint-placeholder-val="{{ false }}">
+          <div class="row" style="justify-content:center;gap:14px"><button class="qbtn" onClick="{{ dv.prev }}">›</button><span class="t1">{{ dv.pageTxt }}</span><button class="qbtn" onClick="{{ dv.next }}">‹</button></div>
+        </sc-if>
+        <div class="row" style="gap:8px">
+          <button class="btn-g grow" style="min-height:44px;display:flex;gap:6px;align-items:center;justify-content:center" onClick="{{ dv.share }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.4M8.3 13.2l7.4 4.4"/></svg>{{ T.sharePage }}</button>
+          <sc-if value="{{ dv.canEdit }}" hint-placeholder-val="{{ true }}"><label class="btn-g grow filebtn" style="min-height:44px">+ {{ T.addPage }}<input type="file" accept="image/*" multiple="true" onChange="{{ dv.addPage }}" style="display:none"></label></sc-if>
+        </div>
+        <sc-if value="{{ dv.canEdit }}" hint-placeholder-val="{{ true }}">
+          <div class="row" style="gap:8px"><button class="chip" style="gap:6px" onClick="{{ dv.delPage }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg> {{ T.delPage }}</button><button class="icb icb-del" onClick="{{ dv.delAll }}" aria-label="{{ T.delAllPages }}" title="{{ T.delAllPages }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button><button class="chip" style="margin-inline-start:auto" onClick="{{ dv.back }}">‹ {{ T.dossierT }}</button></div>
+        </sc-if>
+      </sc-if>
+      <sc-if value="{{ isGroups }}" hint-placeholder-val="{{ false }}">
+        <p class="t2" style="font-size:12.5px">{{ T.groupsNote }}</p>
+        <div class="lay-g">
+          <sc-for list="{{ groupRows }}" as="g" hint-placeholder-count="5">
+            <div class="grow-r">
+              <input class="in-s grow" value="{{ g.name }}" onChange="{{ g.onName }}" aria-label="{{ g.name }}">
+              <span class="t2" style="min-width:22px;text-align:center">{{ g.count }}</span>
+              <button class="qbtn" onClick="{{ g.up }}" aria-label="↑">↑</button>
+              <button class="qbtn" onClick="{{ g.down }}" aria-label="↓">↓</button>
+              <sc-if value="{{ g.canDel }}" hint-placeholder-val="{{ true }}"><button class="icb-s" onClick="{{ g.del }}" aria-label="{{ T.del }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div class="row" style="gap:6px"><input class="in-s grow" placeholder="{{ T.groupPh }}" value="{{ gDraft }}" onChange="{{ onGDraft }}"><button class="btn-s" style="width:auto;padding:0 14px;font:inherit;font-size:13px" onClick="{{ addGroupInSheet }}">{{ T.add }}</button></div>
+      </sc-if>
+      <sc-if value="{{ isHp }}" hint-placeholder-val="{{ false }}">
+        <p class="lbl">{{ T.bloodLbl }}</p>
+        <div class="chips"><sc-for list="{{ hpBlood }}" as="c" hint-placeholder-count="8"><button class="{{ c.cls }}" onClick="{{ c.sel }}" style="direction:ltr">{{ c.name }}</button></sc-for></div>
+        <label class="lbl" for="hpA">{{ T.allergyLbl }}</label>
+        <input id="hpA" class="in-s" type="text" value="{{ hpf.allergies }}" onChange="{{ hpOn.allergies }}" placeholder="{{ T.allergyPh }}">
+        <label class="lbl" for="hpC">{{ T.chronicLbl }}</label>
+        <input id="hpC" class="in-s" type="text" value="{{ hpf.chronic }}" onChange="{{ hpOn.chronic }}" placeholder="{{ T.chronicPh }}">
+        <label class="lbl" for="hpB">{{ T.birthLbl }}</label>
+        <input id="hpB" class="in-s" type="date" value="{{ hpf.birth }}" onChange="{{ hpOn.birth }}" >
+        <label class="lbl" for="hpI">{{ T.iceLbl }}</label>
+        <input id="hpI" class="in-s" type="text" value="{{ hpf.ice }}" onChange="{{ hpOn.ice }}" placeholder="{{ T.icePh }}">
+        <label class="lbl" for="hpN">{{ T.noteOpt }}</label>
+        <input id="hpN" class="in-s" type="text" value="{{ hpf.notes }}" onChange="{{ hpOn.notes }}" >
+        <button class="btn" onClick="{{ saveHp }}">{{ T.save }}</button>
+      </sc-if>
+
+      <sc-if value="{{ isMeasures }}" hint-placeholder-val="{{ false }}">
+        <div class="chips"><sc-for list="{{ mWhoChips }}" as="c" hint-placeholder-count="3"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+        <div class="tabs"><sc-for list="{{ mTypes }}" as="c" hint-placeholder-count="5"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+        <div class="row" style="gap:6px">
+          <input class="in-s grow" type="number" inputmode="decimal" placeholder="{{ mfv.v1Ph }}" value="{{ mfv.v1 }}" onChange="{{ mOn.v1 }}">
+          <sc-if value="{{ mfv.isBp }}" hint-placeholder-val="{{ true }}"><input class="in-s grow" type="number" inputmode="decimal" placeholder="{{ mfv.v2Ph }}" value="{{ mfv.v2 }}" onChange="{{ mOn.v2 }}"></sc-if>
+          <button class="btn-s" style="width:auto;padding:0 14px;font:inherit;font-size:13px" onClick="{{ addMeasure }}">{{ T.add }}</button>
+        </div>
+        <sc-if value="{{ mfv.isSugar }}" hint-placeholder-val="{{ false }}">
+          <div class="chips"><button class="{{ mfv.ctxRand }}" onClick="{{ mOn.rand }}">{{ T.ctxRand }}</button><button class="{{ mfv.ctxFast }}" onClick="{{ mOn.fast }}">{{ T.ctxFast }}</button><button class="{{ mfv.ctxAfter }}" onClick="{{ mOn.after }}">{{ T.ctxAfter }}</button></div>
+        </sc-if>
+        <sc-if value="{{ hasMNormal }}" hint-placeholder-val="{{ false }}"><p class="t2" style="font-size:12px">{{ mNormal }}</p></sc-if>
+        <sc-if value="{{ hasChart }}" hint-placeholder-val="{{ false }}">
+          <div class="chart">
+            <svg viewBox="0 0 300 120" preserveAspectRatio="none" aria-hidden="true">
+              <path d="{{ chart.path }}" fill="none" stroke="var(--acc)" stroke-width="2.2" stroke-linejoin="round"/>
+              <sc-if value="{{ chart.has2 }}" hint-placeholder-val="{{ false }}"><path d="{{ chart.path2 }}" fill="none" stroke="var(--warn)" stroke-width="2.2" stroke-linejoin="round"/></sc-if>
+              <sc-for list="{{ chart.dots }}" as="d" hint-placeholder-count="3"><circle cx="{{ d.cx }}" cy="{{ d.cy }}" r="3" fill="var(--acc)"/></sc-for>
+            </svg>
+            <div class="row" style="justify-content:space-between;direction:ltr"><span class="t2" style="font-size:11px">{{ chart.from }}</span><span class="t2" style="font-size:11px">{{ chart.lo }}–{{ chart.hi }} {{ mUnit }}</span><span class="t2" style="font-size:11px">{{ chart.to }}</span></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noChart }}" hint-placeholder-val="{{ true }}"><p class="t2" style="text-align:center;font-size:12px">{{ T.chartHint }}</p></sc-if>
+        <div class="mlist">
+          <sc-for list="{{ mRows }}" as="r" hint-placeholder-count="3">
+            <div class="mrow"><span class="grow"><b style="direction:ltr;display:inline-block">{{ r.val }}</b><span class="t2" style="display:block;font-size:11.5px">{{ r.when }}</span></span>
+              <sc-if value="{{ r.hasLbl }}" hint-placeholder-val="{{ false }}"><span class="{{ r.lCls }}">{{ r.lbl }}</span></sc-if>
+              <button class="icb-s" onClick="{{ r.del }}" aria-label="{{ T.del }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ hasMRows }}" hint-placeholder-val="{{ false }}"><button class="btn-g" style="min-height:42px" onClick="{{ shareMeasures }}">{{ T.shareDoctor }}</button></sc-if>
+        <p class="t2" style="font-size:11px">{{ T.medDisclaimer }}</p>
+      </sc-if>
+
+      <sc-if value="{{ isShopAn }}" hint-placeholder-val="{{ false }}">
+        <div class="chips"><sc-for list="{{ sa.periods }}" as="c" hint-placeholder-count="3"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+        <sc-if value="{{ sa.empty }}" hint-placeholder-val="{{ false }}"><p class="t2" style="text-align:center;padding:20px 0">{{ T.saEmpty }}</p></sc-if>
+        <sc-if value="{{ sa.has }}" hint-placeholder-val="{{ true }}">
+          <div class="rep-split"><div><b>{{ sa.total }}</b><span>{{ T.saTotal }}</span></div><div><b>{{ sa.weekly }}</b><span>{{ T.saWeekly }}</span></div><div><b>{{ sa.visits }}</b><span>{{ T.saVisits }}</span></div></div>
+          <sc-if value="{{ sa.hasInsights }}" hint-placeholder-val="{{ false }}"><div class="insight"><sc-for list="{{ sa.insights }}" as="x" hint-placeholder-count="2"><p style="margin:0">💡 {{ x.t }}</p></sc-for></div></sc-if>
+          <sc-if value="{{ sa.hasDue }}" hint-placeholder-val="{{ false }}">
+            <p class="h" style="margin:4px 0 0">{{ T.saDue }}</p>
+            <div class="mlist"><sc-for list="{{ sa.dueSoon }}" as="x" hint-placeholder-count="2"><div class="mi2"><span class="grow"><span class="t1" style="display:block">{{ x.name }}</span><span class="t2" style="font-size:11.5px">{{ x.sub }}</span></span><button class="mdone" onClick="{{ x.add }}">+ {{ T.listTitle }}</button></div></sc-for></div>
+          </sc-if>
+          <p class="h" style="margin:4px 0 0">{{ T.saMonthly }}</p>
+          <svg class="days" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true" style="direction:ltr">
+            <sc-for list="{{ sa.mBars }}" as="b" hint-placeholder-count="6"><rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}" rx="4" fill="var(--acc)"/></sc-for>
+          </svg>
+          <div class="fa-lbls"><sc-for list="{{ sa.mBars }}" as="b" hint-placeholder-count="6"><span>{{ b.lbl }}</span></sc-for></div>
+          <p class="h" style="margin:4px 0 0">{{ T.saTop }}</p>
+          <div class="rcats"><sc-for list="{{ sa.topSpend }}" as="x" hint-placeholder-count="4">
+            <div class="rcat"><div class="row" style="gap:8px"><span class="grow t1" style="font-size:13.5px">{{ x.name }}</span><span class="t2" style="font-size:11.5px">{{ x.n }}</span><b class="amt">{{ x.amt }}</b></div>
+              <svg class="rb rb-0" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="100" height="6" rx="3" fill="currentColor" fill-opacity=".14"/><rect x="0" y="0" width="{{ x.pct }}" height="6" rx="3" fill="currentColor"/></svg></div>
+          </sc-for></div>
+          <sc-if value="{{ sa.hasPriceCh }}" hint-placeholder-val="{{ false }}">
+            <p class="h" style="margin:4px 0 0">{{ T.priceChT }}</p>
+            <div class="card" style="gap:6px;padding:10px 12px"><sc-for list="{{ sa.priceCh }}" as="x" hint-placeholder-count="2"><div class="row" style="gap:8px"><span class="grow t1" style="font-size:13.5px">{{ x.name }}</span><span class="t2" style="font-size:11.5px">{{ x.txt }}</span><span class="{{ x.chCls }}">{{ x.chTxt }}</span></div></sc-for></div>
+          </sc-if>
+          <sc-if value="{{ sa.hasRhythm }}" hint-placeholder-val="{{ false }}">
+            <p class="h" style="margin:4px 0 0">{{ T.saRhythm }}</p>
+            <div class="chips"><sc-for list="{{ sa.rhythmRows }}" as="x" hint-placeholder-count="4"><span class="chip">{{ x.name }} · {{ x.every }}</span></sc-for></div>
+          </sc-if>
+          <p class="h" style="margin:4px 0 0">{{ T.byStoreT }}</p>
+          <div class="rcats"><sc-for list="{{ sa.stores }}" as="x" hint-placeholder-count="3">
+            <div class="rcat"><div class="row" style="gap:8px"><span class="grow t1" style="font-size:13.5px">{{ x.name }}</span><span class="t2" style="font-size:11.5px">{{ x.share }}</span><b class="amt">{{ x.amt }}</b></div>
+              <svg class="{{ x.barCls }}" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="100" height="6" rx="3" fill="currentColor" fill-opacity=".14"/><rect x="0" y="0" width="{{ x.pct }}" height="6" rx="3" fill="currentColor"/></svg></div>
+          </sc-for></div>
+          <sc-if value="{{ sa.hasWho }}" hint-placeholder-val="{{ false }}">
+            <p class="h" style="margin:4px 0 0">{{ T.byWhoT }}</p>
+            <div class="card" style="gap:6px;padding:10px 12px"><sc-for list="{{ sa.whoRows }}" as="x" hint-placeholder-count="2"><div class="row" style="justify-content:space-between"><span class="t1" style="font-size:13.5px">{{ x.name }}</span><b class="amt">{{ x.amt }}</b></div></sc-for></div>
+          </sc-if>
+          <p class="t2" style="font-size:11.5px">{{ sa.note }}</p>
+        </sc-if>
+      </sc-if>
+      <sc-if value="{{ isReport }}" hint-placeholder-val="{{ false }}">
+        <div class="rep-h">
+          <button class="qbtn" onClick="{{ rep.prev }}" aria-label="{{ T.prevMonth }}">›</button>
+          <p class="grow" style="text-align:center;font-weight:700">{{ rep.month }}</p>
+          <sc-if value="{{ rep.canNext }}" hint-placeholder-val="{{ false }}"><button class="qbtn" onClick="{{ rep.next }}" aria-label="{{ T.nextMonth }}">‹</button></sc-if>
+          <sc-if value="{{ rep.canNext }}" hint-placeholder-val="{{ true }}"><span style="width:40px"></span></sc-if>
+        </div>
+        <div class="rep-total">
+          <span class="t2">{{ T.totalLbl }}</span>
+          <b>{{ rep.total }}</b>
+          <sc-if value="{{ rep.hasDiff }}" hint-placeholder-val="{{ false }}"><span class="{{ rep.diffCls }}">{{ rep.diffTxt }}</span></sc-if>
+          <sc-if value="{{ rep.hasBudget }}" hint-placeholder-val="{{ false }}">
+            <svg class="bar-svg" style="height:6px;color:var(--acc)" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="100" height="6" rx="3" fill="currentColor" fill-opacity=".18"/><rect x="0" y="0" width="{{ rep.budgetPct }}" height="6" rx="3" fill="currentColor"/></svg>
+            <span class="t2" style="font-size:12px">{{ rep.budgetTxt }}</span>
+          </sc-if>
+        </div>
+        <p class="insight">💡 {{ rep.insight }}</p>
+        <sc-if value="{{ rep.hasData }}" hint-placeholder-val="{{ false }}">
+          <div class="rep-split"><div><b>{{ rep.shop }}</b><span>{{ T.shopLbl }}</span></div><div><b>{{ rep.fixed }}</b><span>{{ T.fixedExp }}</span></div><div><b>{{ rep.other }}</b><span>{{ T.otherLbl }}</span></div></div>
+          <p class="h" style="margin:4px 0 0">{{ T.byCatT }}</p>
+          <div class="rcats">
+            <sc-for list="{{ rep.cats }}" as="x" hint-placeholder-count="4">
+              <div class="rcat"><div class="row" style="gap:8px"><span class="grow t1" style="font-size:13.5px">{{ x.name }}</span><span class="{{ x.chCls }}">{{ x.chTxt }}</span><b class="amt">{{ x.amt }}</b></div>
+                <svg class="{{ x.barCls }}" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="100" height="6" rx="3" fill="currentColor" fill-opacity=".14"/><rect x="0" y="0" width="{{ x.pct }}" height="6" rx="3" fill="currentColor"/></svg></div>
+            </sc-for>
+          </div>
+          <p class="h" style="margin:4px 0 0">{{ T.dailyT }}</p>
+          <svg class="days" viewBox="0 0 300 74" preserveAspectRatio="none" aria-hidden="true">
+            <sc-for list="{{ rep.dayBars }}" as="b" hint-placeholder-count="10"><rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}" rx="1.5" fill="var(--acc)"/></sc-for>
+            <rect x="0" y="72" width="300" height="1" fill="var(--line)"/>
+          </svg>
+          <sc-if value="{{ rep.hasTop }}" hint-placeholder-val="{{ false }}">
+            <p class="h" style="margin:4px 0 0">{{ T.topT }}</p>
+            <div class="card" style="gap:6px;padding:10px 12px"><sc-for list="{{ rep.top }}" as="x" hint-placeholder-count="3"><div class="row" style="justify-content:space-between"><span class="t1" style="font-size:13.5px">{{ x.name }}</span><b class="amt">{{ x.amt }}</b></div></sc-for></div>
+          </sc-if>
+          <sc-if value="{{ rep.hasPriceCh }}" hint-placeholder-val="{{ false }}">
+            <p class="h" style="margin:4px 0 0">{{ T.priceChT }}</p>
+            <div class="card" style="gap:6px;padding:10px 12px"><sc-for list="{{ rep.priceCh }}" as="x" hint-placeholder-count="2"><div class="row" style="gap:8px"><span class="grow t1" style="font-size:13.5px">{{ x.name }}</span><span class="t2" style="font-size:11.5px">{{ x.txt }}</span><span class="{{ x.chCls }}">{{ x.chTxt }}</span></div></sc-for></div>
+          </sc-if>
+          <sc-if value="{{ rep.hasWho }}" hint-placeholder-val="{{ false }}">
+            <p class="h" style="margin:4px 0 0">{{ T.byWhoT }}</p>
+            <div class="card" style="gap:6px;padding:10px 12px"><sc-for list="{{ rep.whoRows }}" as="x" hint-placeholder-count="2"><div class="row" style="justify-content:space-between"><span class="t1" style="font-size:13.5px">{{ x.name }}</span><b class="amt">{{ x.amt }}</b></div></sc-for></div>
+          </sc-if>
+          <button class="btn-g" style="min-height:44px" onClick="{{ rep.share }}">{{ T.shareReport }}</button>
+        </sc-if>
+      </sc-if>
+      <sc-if value="{{ isExpSheet }}" hint-placeholder-val="{{ false }}">
+        <label class="lbl" for="eWhat">{{ T.expWhat }}</label>
+        <input id="eWhat" class="in-s" placeholder="{{ T.expWhatPh }}" value="{{ efv.text }}" onChange="{{ efv.onText }}">
+        <p class="lbl">{{ T.expCat }}</p>
+        <div class="chips">
+          <sc-for list="{{ efv.cats }}" as="c" hint-placeholder-count="6"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for>
+        </div>
+        <div class="row" style="gap:8px">
+          <label class="lbl grow"><sc-if value="{{ efv.needAmountHint }}" hint-placeholder-val="{{ false }}">{{ T.amtOpt }}</sc-if><sc-if value="{{ efv.showDate }}" hint-placeholder-val="{{ true }}">{{ T.expAmt }}</sc-if><input class="price-in" type="number" inputmode="decimal" placeholder="0" value="{{ efv.amount }}" onChange="{{ efv.onAmount }}"></label>
+        </div>
+        <sc-if value="{{ efv.showDate }}" hint-placeholder-val="{{ true }}">
+          <label class="lbl">{{ T.expDate }}<input class="in-s" type="date" value="{{ efv.d }}" onChange="{{ efv.onDate }}"></label>
+        </sc-if>
+        <p class="lbl">{{ T.paidBy }}</p>
+        <div class="chips">
+          <sc-for list="{{ efv.who }}" as="c" hint-placeholder-count="3"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for><button class="chip chip-add" onClick="{{ addPersonFrom }}">{{ T.addPersonChip }}</button>
+        </div>
+        <sc-if value="{{ efv.showRecur }}" hint-placeholder-val="{{ true }}">
+          <button class="{{ efv.recurCls }}" onClick="{{ efv.toggleRecur }}" aria-pressed="{{ efv.recurOn }}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/></svg>
+            <span class="vis-t"><b>{{ T.recurT }}</b><span>{{ T.recurS }}</span></span>
+          </button>
+        </sc-if>
+        <sc-if value="{{ efv.recurOn }}" hint-placeholder-val="{{ false }}">
+          <p class="lbl">{{ T.ckindLbl }}</p>
+          <div class="chips"><sc-for list="{{ efv.ckinds }}" as="c" hint-placeholder-count="3"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+          <sc-if value="{{ efv.isCommit }}" hint-placeholder-val="{{ false }}">
+            <div class="row" style="gap:8px">
+              <label class="lbl grow"><sc-if value="{{ efv.isGam }}" hint-placeholder-val="{{ false }}">{{ T.monthsGamLbl }}</sc-if><sc-if value="{{ efv.isInst }}" hint-placeholder-val="{{ true }}">{{ T.monthsLbl }}</sc-if><input class="in-s" type="number" inputmode="numeric" value="{{ efv.months }}" onChange="{{ efv.onMonths }}"></label>
+              <label class="lbl grow">{{ T.startLbl }}<input class="in-s" type="month" value="{{ efv.start }}" onChange="{{ efv.onStart }}"></label>
+            </div>
+            <sc-if value="{{ efv.isGam }}" hint-placeholder-val="{{ false }}"><label class="lbl">{{ T.turnLbl }}<input class="in-s" type="number" inputmode="numeric" value="{{ efv.turn }}" onChange="{{ efv.onTurn }}" style="max-width:120px"></label>
+              <p class="insight" style="font-size:12.5px">{{ efv.gamPreview }}</p></sc-if>
+            <sc-if value="{{ efv.isInst }}" hint-placeholder-val="{{ false }}"><p class="insight" style="font-size:12.5px">{{ efv.instPreview }}</p></sc-if>
+          </sc-if>
+          <label class="lbl" for="eDay">{{ T.recurDay }}</label>
+          <input id="eDay" class="in-s" type="number" inputmode="numeric" min="1" max="31" placeholder="{{ T.dayPh }}" value="{{ efv.day }}" onChange="{{ efv.onDay }}" style="max-width:140px">
+          <p class="t2" style="font-size:11.5px;margin-top:-8px">{{ T.dayHint }}</p>
+          <div class="remb"><p class="lbl" style="margin:0">🔔 {{ T.remT }}</p><p class="t2" style="font-size:11.5px">{{ remDefExp }}</p><div class="chips"><sc-for list="{{ remExp }}" as="c" hint-placeholder-count="4"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div></div>
+        </sc-if>
+        <sc-if value="{{ efv.showPaidToggle }}" hint-placeholder-val="{{ false }}">
+          <button class="{{ efv.paidCls }}" onClick="{{ efv.togglePaid }}" aria-pressed="{{ efv.paidNow }}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>
+            <span class="vis-t"><b>{{ T.paidNowT }}</b><span>{{ T.paidNowS }}</span></span>
+          </button>
+        </sc-if>
+        <button class="btn" onClick="{{ saveExp }}">{{ efv.saveTxt }}</button>
+        <sc-if value="{{ efv.isEditRecur }}" hint-placeholder-val="{{ false }}">
+          <button class="btn-g" style="min-height:44px" onClick="{{ delRecur }}">{{ T.stopRecur }}</button>
+        </sc-if>
+      </sc-if>
+      <sc-if value="{{ isExport }}" hint-placeholder-val="{{ false }}">
+        <div class="chips">
+          <sc-for list="{{ expModes }}" as="m" hint-placeholder-count="4">
+            <button class="{{ m.cls }}" onClick="{{ m.sel }}">{{ m.name }}</button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ expCustom }}" hint-placeholder-val="{{ false }}">
+          <div class="row" style="gap:8px">
+            <label class="lbl grow">{{ T.from }}<input class="in-s" type="date" value="{{ expFrom }}" onChange="{{ onExpFrom }}"></label>
+            <label class="lbl grow">{{ T.to }}<input class="in-s" type="date" value="{{ expTo }}" onChange="{{ onExpTo }}"></label>
+          </div>
+        </sc-if>
+        <p class="t2">{{ expRange }}</p>
+        <p class="t1">{{ expSummary }}</p>
+        <sc-for list="{{ expByCat }}" as="c" hint-placeholder-count="3">
+          <div class="row" style="gap:8px"><span class="grow t2">{{ c.name }}</span><span class="amt">{{ c.amtTxt }}</span></div>
+        </sc-for>
+        <sc-if value="{{ hasExp }}" hint-placeholder-val="{{ true }}">
+          <button class="btn" onClick="{{ doExport }}">{{ T.exportFile }}</button>
+        </sc-if>
+      </sc-if>
+      <sc-if value="{{ isDict }}" hint-placeholder-val="{{ false }}">
+        <p class="t2">{{ T.dictHint }}</p>
+        <textarea class="in-s dict" rows="4" value="{{ dictText }}" onChange="{{ onDict }}"></textarea>
+        <div class="row" style="gap:8px">
+          <button class="{{ micCls }}" onClick="{{ startDictation }}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>
+            {{ micTxt }}</button>
+          <button class="btn grow" onClick="{{ parseDict }}">{{ T.understand }}</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ reviewLoading }}" hint-placeholder-val="{{ false }}">
+          <p class="t1" style="text-align:center;padding:24px 0">{{ T.reading }}</p>
+        </sc-if>
+        <sc-if value="{{ reviewIsReceipt }}" hint-placeholder-val="{{ false }}">
+          <p class="t2">{{ T.reviewHintR }} <b>{{ reviewStore }}</b></p>
+        </sc-if>
+        <sc-if value="{{ reviewIsCmd }}" hint-placeholder-val="{{ false }}">
+          <p class="t2">{{ T.reviewHintL }}</p>
+        </sc-if>
+        <div class="rvlist">
+          <sc-for list="{{ reviewRows }}" as="r" hint-placeholder-count="4">
+            <div class="rv-card">
+              <div class="rv">
+                <button class="{{ r.ckCls }}" onClick="{{ r.toggle }}" aria-label="{{ r.name }}">
+                  <sc-if value="{{ r.on }}" hint-placeholder-val="{{ true }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></sc-if>
+                </button>
+                <span class="{{ r.typeCls }}">{{ r.typeTxt }}</span>
+                <input class="in-s grow" value="{{ r.name }}" onChange="{{ r.onName }}" aria-label="{{ r.name }}">
+                <sc-if value="{{ r.isShopR }}" hint-placeholder-val="{{ true }}"><span class="b-s">{{ r.qtyTxt }}</span></sc-if>
+                <sc-if value="{{ r.showPrice }}" hint-placeholder-val="{{ false }}">
+                  <input class="in-s rv-p" type="number" inputmode="decimal" placeholder="{{ T.priceShort }}" value="{{ r.price }}" onChange="{{ r.onPrice }}">
+                </sc-if>
+              </div>
+              <sc-if value="{{ r.isAppt }}" hint-placeholder-val="{{ false }}">
+                <div class="rv-sub">
+                  <input class="in-s" type="date" value="{{ r.date }}" onChange="{{ r.onDate }}" aria-label="{{ T.date }}">
+                  <input class="in-s rv-tm" type="time" value="{{ r.time }}" onChange="{{ r.onTime }}" aria-label="{{ tmLbl }}">
+                </div>
+              </sc-if>
+              <sc-if value="{{ r.isMedR }}" hint-placeholder-val="{{ false }}">
+                <div class="rv-sub"><span class="t2">{{ r.timesTxt }}</span><input class="in-s grow" placeholder="{{ T.dosePh }}" value="{{ r.dose }}" onChange="{{ r.onDose }}"></div>
+              </sc-if>
+              <sc-if value="{{ r.isRecR }}" hint-placeholder-val="{{ false }}">
+                <div class="rv-sub"><input class="in-s" type="date" value="{{ r.date }}" onChange="{{ r.onDate }}"></div>
+              </sc-if>
+              <sc-if value="{{ r.isTimerR }}" hint-placeholder-val="{{ false }}">
+                <div class="rv-sub">
+                  <button class="qbtn" onClick="{{ r.minMinus }}" aria-label="{{ T.lessQty }}">−</button>
+                  <span class="qval">{{ r.minTxt }}</span>
+                  <button class="qbtn" onClick="{{ r.minPlus }}" aria-label="{{ T.moreQty }}">+</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ r.hasWho }}" hint-placeholder-val="{{ false }}">
+                <button class="rv-who" onClick="{{ r.nextWho }}">{{ T.forWhom }} <b>{{ r.whoTxt }}</b> ⇄</button>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <p class="money">{{ reviewTotal }}</p>
+        <sc-if value="{{ hasReviewRows }}" hint-placeholder-val="{{ true }}">
+          <button class="btn" onClick="{{ confirmReview }}">{{ T.confirmAdd }}</button>
+        </sc-if>
+      </sc-if>
       <sc-if value="{{ isPrice }}" hint-placeholder-val="{{ false }}">
         <p class="t2">{{ priceItemLine }}</p>
         <input class="price-in" type="number" inputmode="decimal" aria-label="{{ T.amount }}" placeholder="0" value="{{ priceDraft }}" onChange="{{ onPrice }}">
@@ -692,50 +1886,33 @@
 
       <!-- الثيمات -->
       <sc-if value="{{ isThemeSheet }}" hint-placeholder-val="{{ false }}">
-        <sc-if value="{{ syncOn }}" hint-placeholder-val="{{ false }}">
-          <p class="h" style="margin:0">{{ T.members }} — {{ famLabel }}</p>
-          <div class="ilist">
-            <sc-for list="{{ memberRows }}" as="m" hint-placeholder-count="2">
-              <div class="it"><div class="it-top">
-                <span class="it-name" style="cursor:default">{{ m.name }}</span>
-                <span class="it-desc" style="direction:ltr">{{ m.sub }}</span>
-                <sc-if value="{{ m.canRemove }}" hint-placeholder-val="{{ false }}"><button class="xbtn" onClick="{{ m.remove }}" aria-label="{{ T.del }}">×</button></sc-if>
-              </div></div>
-            </sc-for>
-          </div>
-          <button class="btn" style="min-height:44px" onClick="{{ shareInvite }}">{{ T.shareInviteBtn }}</button>
-          <sc-if value="{{ hasInviteCode }}" hint-placeholder-val="{{ false }}">
-            <p class="t2" style="text-align:center">{{ T.inviteCodeLbl }} <b style="direction:ltr;letter-spacing:2px">{{ inviteCodeTxt }}</b></p>
-          </sc-if>
-          <p class="lbl">{{ T.orEmail }}</p>
-          <div class="row" style="gap:6px">
-            <input class="in-s" style="flex:1;direction:ltr;text-align:start" type="email" aria-label="{{ T.invitePh }}" placeholder="{{ T.invitePh }}" value="{{ inviteDraft }}" onChange="{{ onInvite }}">
-            <button class="btn-s" style="width:auto;padding:0 12px;font:inherit;font-size:13px" onClick="{{ sendInvite }}">{{ T.invite }}</button>
-          </div>
-          <sc-if value="{{ syncOn }}" hint-placeholder-val="{{ false }}">
-          <button class="lnk" onClick="{{ openJoin }}">{{ T.joinTitle }}</button>
-          <button class="btn-g" style="min-height:44px;color:var(--warn)" onClick="{{ logout }}">{{ T.logout }}</button>
-        </sc-if>
-      </sc-if>
+        <button class="mi" onClick="{{ openFamily }}">
+          <div class="tile cat-appt"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4.5a3 3 0 0 1 0 6M18 14c2 .6 3.5 2.8 3.5 5.5"/></svg></div>
+          <span class="grow"><span class="t1" style="display:block">{{ T.familyT }}</span><span class="t2">{{ famSummary }}</span></span>
+          <span class="t2">‹</span>
+        </button>
+        <button class="mi" onClick="{{ openLayout }}">
+          <div class="tile cat-vax"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 17.5h7M17.5 14v7"/></svg></div>
+          <span class="grow"><span class="t1" style="display:block">{{ T.layoutT }}</span><span class="t2">{{ T.layoutS }}</span></span>
+          <span class="t2">‹</span>
+        </button>
+        <p class="lbl">{{ T.zoomLbl }}</p>
+        <div class="zrow"><sc-for list="{{ zoomChips }}" as="c" hint-placeholder-count="5"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
+        <p class="t2" style="font-size:11.5px;margin-top:-6px">{{ T.zoomHint }}</p>
+        <p class="lbl">{{ T.langLbl }}</p>
+        <div class="seg2">
+          <button class="{{ langArCls }}" onClick="{{ setAr }}">العربية</button>
+          <button class="{{ langEnCls }}" onClick="{{ setEn }}">English</button>
+        </div>
         <sc-if value="{{ localOnly }}" hint-placeholder-val="{{ false }}">
           <p class="alert" style="padding:8px 12px;font-size:12px">{{ T.localNote }}</p>
           <label class="lbl" for="uName">{{ T.yourName }}</label>
           <input id="uName" class="in-s" value="{{ userName }}" onChange="{{ setUserName }}">
         </sc-if>
-        <p class="lbl">{{ T.depHint }}</p>
-        <div class="chips">
-          <sc-for list="{{ depRows }}" as="d" hint-placeholder-count="1">
-            <span class="chip">{{ d.name }} <button class="lnk" style="min-height:0;padding:0 2px" onClick="{{ d.remove }}" aria-label="{{ T.del }}">×</button></span>
-          </sc-for>
-        </div>
-        <div class="row" style="gap:6px">
-          <input class="in-s" style="flex:1" aria-label="{{ T.depPh }}" placeholder="{{ T.depPh }}" value="{{ depDraft }}" onChange="{{ onDep }}">
-          <button class="btn-s" onClick="{{ addDep }}" aria-label="{{ T.add }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
-        </div>
         <label class="lbl" for="uBudget">{{ T.budgetLbl }}</label>
         <input id="uBudget" class="in-s" type="number" inputmode="decimal" value="{{ budgetVal }}" onChange="{{ onBudget }}">
-        <p class="t2">{{ T.themeIntro }}</p>
-        <div class="grid2">
+        <p class="lbl">{{ T.themeLbl }}</p>
+        <div class="grid2 thgrid">
           <sc-for list="{{ themes }}" as="th" hint-placeholder-count="4">
             <button class="{{ th.cardCls }}" onClick="{{ th.sel }}" aria-label="{{ th.name }}">
               <div class="{{ th.miniCls }}">
@@ -748,10 +1925,106 @@
             </button>
           </sc-for>
         </div>
+        <sc-if value="{{ syncOn }}" hint-placeholder-val="{{ false }}">
+          <button class="btn-g" style="min-height:44px;color:var(--warn)" onClick="{{ logout }}">{{ T.logout }}</button>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{ isLayout }}" hint-placeholder-val="{{ false }}">
+        <p class="t2" style="font-size:12.5px;line-height:1.6">{{ T.layoutNote }}</p>
+        <div class="lay" data-dl="nav">
+          <sc-for list="{{ layoutRows }}" as="g" hint-placeholder-count="5">
+            <div class="lay-g" data-di="{{ g.dk }}">
+              <div class="lay-x"><button class="lay-r" onClick="{{ g.toggle }}" aria-pressed="{{ g.on }}"><span class="{{ g.gripCls }}"><svg width="12" height="16" viewBox="0 0 12 16" fill="currentColor" aria-hidden="true"><circle cx="3" cy="3" r="1.4"/><circle cx="9" cy="3" r="1.4"/><circle cx="3" cy="8" r="1.4"/><circle cx="9" cy="8" r="1.4"/><circle cx="3" cy="13" r="1.4"/><circle cx="9" cy="13" r="1.4"/></svg></span><b class="grow">{{ g.name }}</b><span class="{{ g.swCls }}"><i></i></span></button></div>
+              <sc-if value="{{ g.hasSubs }}" hint-placeholder-val="{{ false }}">
+                <div data-dl="{{ g.subList }}">
+                <sc-for list="{{ g.subs }}" as="x" hint-placeholder-count="3">
+                  <div class="lay-x lay-xs" data-di="{{ x.dk }}"><button class="lay-r lay-s" onClick="{{ x.toggle }}"><span class="{{ x.gripCls }}"><svg width="12" height="16" viewBox="0 0 12 16" fill="currentColor" aria-hidden="true"><circle cx="3" cy="3" r="1.4"/><circle cx="9" cy="3" r="1.4"/><circle cx="3" cy="8" r="1.4"/><circle cx="9" cy="8" r="1.4"/><circle cx="3" cy="13" r="1.4"/><circle cx="9" cy="13" r="1.4"/></svg></span><span class="grow">{{ x.name }}</span><span class="{{ x.swCls }}"><i></i></span></button></div>
+                </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div class="lay-g"><button class="lay-r" onClick="{{ toggleMute }}" aria-pressed="{{ muteOn }}"><span class="grow"><b style="display:block;font-size:14.5px">{{ T.muteT }}</b><span class="t2" style="font-size:12px">{{ T.muteS }}</span></span><span class="{{ muteCls }}"><i></i></span></button></div>
+        <p class="t2" style="font-size:12px">{{ T.layoutTip }}</p>
+        <sc-if value="{{ hasHidden }}" hint-placeholder-val="{{ false }}"><button class="btn-g" style="min-height:44px" onClick="{{ showAll }}">{{ T.showAllBtn }}</button></sc-if>
+      </sc-if>
+
+      <!-- الأسرة -->
+      <sc-if value="{{ isFamilySheet }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ hasManyFams }}" hint-placeholder-val="{{ false }}">
+          <p class="lbl">{{ T.myFamsLbl }}</p>
+          <div class="chips"><sc-for list="{{ famRows }}" as="f" hint-placeholder-count="2"><button class="{{ f.cls }}" onClick="{{ f.sel }}">{{ f.name }}</button></sc-for></div>
+        </sc-if>
+        <div class="fam-list">
+          <sc-for list="{{ famPeople }}" as="m" hint-placeholder-count="3">
+            <div class="fam-p">
+              <span class="{{ m.avCls }}">{{ m.init }}</span>
+              <span class="grow"><span class="t1" style="display:block">{{ m.name }}</span><span class="t2" style="font-size:11.5px">{{ m.sub }}</span></span>
+              <sc-if value="{{ m.canRemove }}" hint-placeholder-val="{{ false }}"><button class="icb-s" onClick="{{ m.remove }}" aria-label="{{ T.del }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <p class="h" style="margin:4px 0 0">{{ T.addPersonT }}</p>
+        <div class="fam-opts">
+          <button class="{{ famOptAppCls }}" onClick="{{ pickFamApp }}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg>
+            <b>{{ T.famOptApp }}</b><span>{{ T.famOptAppS }}</span>
+          </button>
+          <button class="{{ famOptDepCls }}" onClick="{{ pickFamDep }}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="3.5"/><path d="M6 21c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+            <b>{{ T.famOptDep }}</b><span>{{ T.famOptDepS }}</span>
+          </button>
+        </div>
+        <sc-if value="{{ famAddApp }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ syncOn }}" hint-placeholder-val="{{ true }}">
+            <button class="btn" style="min-height:44px" onClick="{{ shareInvite }}">{{ T.shareInviteBtn }}</button>
+            <sc-if value="{{ hasInviteCode }}" hint-placeholder-val="{{ false }}">
+              <p class="t2" style="text-align:center">{{ T.inviteCodeLbl }} <b style="direction:ltr;letter-spacing:2px">{{ inviteCodeTxt }}</b></p>
+            </sc-if>
+            <p class="lbl">{{ T.orEmail }}</p>
+            <div class="row" style="gap:6px">
+              <input class="in-s" style="flex:1;direction:ltr;text-align:start" type="email" aria-label="{{ T.invitePh }}" placeholder="{{ T.invitePh }}" value="{{ inviteDraft }}" onChange="{{ onInvite }}">
+              <button class="btn-s" style="width:auto;padding:0 12px;font:inherit;font-size:13px" onClick="{{ sendInvite }}">{{ T.invite }}</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ localOnly }}" hint-placeholder-val="{{ false }}">
+            <p class="alert" style="padding:8px 12px;font-size:12px">{{ T.localNote }}</p>
+          </sc-if>
+        </sc-if>
+        <sc-if value="{{ famAddDep }}" hint-placeholder-val="{{ false }}">
+          <div class="row" style="gap:6px">
+            <input id="depName" class="in-s" style="flex:1" aria-label="{{ T.depPh }}" placeholder="{{ T.depPh }}" value="{{ depDraft }}" onChange="{{ onDep }}">
+            <button class="btn-s" style="width:auto;padding:0 14px;font:inherit;font-size:13px" onClick="{{ addDep }}">{{ T.add }}</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ syncOn }}" hint-placeholder-val="{{ false }}">
+          <button class="lnk" onClick="{{ openJoin }}">{{ T.joinTitle }}</button>
+        </sc-if>
       </sc-if>
 
       <!-- قائمة الإضافة -->
       <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ show.mShop }}" hint-placeholder-val="{{ true }}">
+        <button class="mi" onClick="{{ openShop }}">
+          <div class="tile cat-bill"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 4h2l2.4 11h11L21 8H6.2M9 20h.01M18 20h.01"/></svg></div>
+          <span class="grow"><span class="t1" style="display:block">{{ T.mShop }}</span><span class="t2">{{ T.mShopSub }}</span></span>
+        </button>
+        </sc-if>
+        <sc-if value="{{ show.mAppt }}" hint-placeholder-val="{{ true }}">
+        <button class="mi" onClick="{{ openAppt }}">
+          <div class="tile cat-vax"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="{{ catIcon.appt }}"/></svg></div>
+          <span class="grow"><span class="t1" style="display:block">{{ T.mAppt }}</span><span class="t2">{{ T.mApptSub }}</span></span>
+        </button>
+        </sc-if>
+        <sc-if value="{{ show.mRec }}" hint-placeholder-val="{{ true }}">
+        <button class="mi" onClick="{{ openRec }}">
+          <div class="tile cat-vax"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v7l-5 9a1.5 1.5 0 0 0 1.3 2h11.4a1.5 1.5 0 0 0 1.3-2l-5-9V3M7.5 15h9"/></svg></div>
+          <span class="grow"><span class="t1" style="display:block">{{ T.mRec }}</span><span class="t2">{{ T.mRecSub }}</span></span>
+        </button>
+        </sc-if>
+        <sc-if value="{{ show.mTask }}" hint-placeholder-val="{{ true }}">
         <button class="mi" onClick="{{ openTask }}">
           <div class="tile k-pot">
             <sc-for list="{{ potIcon }}" as="ic" hint-placeholder-count="1">
@@ -760,22 +2033,19 @@
           </div>
           <span class="grow"><span class="t1" style="display:block">{{ T.mTask }}</span><span class="t2">{{ T.mTaskSub }}</span></span>
         </button>
-        <button class="mi" onClick="{{ openAppt }}">
-          <div class="tile cat-vax"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="{{ catIcon.appt }}"/></svg></div>
-          <span class="grow"><span class="t1" style="display:block">{{ T.mAppt }}</span><span class="t2">{{ T.mApptSub }}</span></span>
-        </button>
+        </sc-if>
+        <sc-if value="{{ show.mMed }}" hint-placeholder-val="{{ true }}">
         <button class="mi" onClick="{{ openMed }}">
           <div class="tile cat-med"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="{{ catIcon.med }}"/></svg></div>
           <span class="grow"><span class="t1" style="display:block">{{ T.mMed }}</span><span class="t2">{{ T.mMedSub }}</span></span>
         </button>
-        <button class="mi" onClick="{{ openRec }}">
-          <div class="tile cat-vax"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v7l-5 9a1.5 1.5 0 0 0 1.3 2h11.4a1.5 1.5 0 0 0 1.3-2l-5-9V3M7.5 15h9"/></svg></div>
-          <span class="grow"><span class="t1" style="display:block">{{ T.mRec }}</span><span class="t2">{{ T.mRecSub }}</span></span>
+        </sc-if>
+        <sc-if value="{{ show.mExp }}" hint-placeholder-val="{{ true }}">
+        <button class="mi" onClick="{{ openExp }}">
+          <div class="tile cat-bill"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M16 15h2"/></svg></div>
+          <span class="grow"><span class="t1" style="display:block">{{ T.mExp }}</span><span class="t2">{{ T.mExpSub }}</span></span>
         </button>
-        <button class="mi" onClick="{{ openShop }}">
-          <div class="tile cat-bill"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 4h2l2.4 11h11L21 8H6.2M9 20h.01M18 20h.01"/></svg></div>
-          <span class="grow"><span class="t1" style="display:block">{{ T.mShop }}</span><span class="t2">{{ T.mShopSub }}</span></span>
-        </button>
+        </sc-if>
       </sc-if>
 
       <!-- اختيار الكمية -->
@@ -890,12 +2160,14 @@
           <sc-for list="{{ mfWho }}" as="c" hint-placeholder-count="3">
             <button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button>
           </sc-for>
+            <button class="chip chip-add" onClick="{{ addPersonFrom }}">{{ T.addPersonChip }}</button>
         </div>
         <p class="lbl">{{ T.visibility }}</p>
-        <div class="chips">
-          <button class="{{ mfPrivCls }}" onClick="{{ mfPriv }}">{{ T.privateMe }}</button>
-          <button class="{{ mfShareCls }}" onClick="{{ mfShare }}">{{ T.sharedWife }}</button>
-        </div>
+        <button class="{{ vis.med.cls }}" onClick="{{ vis.med.toggle }}" aria-pressed="{{ vis.med.on }}">
+          <sc-if value="{{ vis.med.on }}" hint-placeholder-val="{{ true }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></sc-if>
+          <sc-if value="{{ vis.med.off }}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.6 5.1A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-2.6 3.5M6.6 6.6A17.4 17.4 0 0 0 2 12s3.6 7 10 7a10.4 10.4 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2M2 2l20 20"/></svg></sc-if>
+          <span class="vis-t"><b>{{ vis.med.txt }}</b><span>{{ vis.med.sub }}</span></span>
+        </button>
         <button class="btn" onClick="{{ saveMed }}">{{ T.save }}</button>
       </sc-if>
 
@@ -907,8 +2179,12 @@
           <p class="t2">{{ mi.line2 }}</p>
           <p class="t2">{{ mi.line3 }}</p>
         </div>
-        <button class="btn" onClick="{{ stopMed }}">{{ T.stopMed }}</button>
-        <p class="t2" style="text-align:center">{{ T.stopHint }}</p>
+        <div class="row" style="gap:8px">
+          <button class="btn grow icb-t" onClick="{{ editMed }}" aria-label="{{ T.editBtn }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg></button>
+          <button class="btn-g grow" style="min-height:48px;gap:6px;display:flex;align-items:center;justify-content:center" onClick="{{ stopMed }}" title="{{ T.stopHint }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6v12M15 6v12"/></svg> {{ T.stopShort }}</button>
+          <button class="icb icb-del icb-l" onClick="{{ deleteMed }}" aria-label="{{ T.del }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+        </div>
+        <p class="t2" style="text-align:center;font-size:11.5px">{{ T.stopHint }}</p>
       </sc-if>
 
       <!-- تحليل / أشعة -->
@@ -931,12 +2207,14 @@
           <sc-for list="{{ rfWho }}" as="c" hint-placeholder-count="3">
             <button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button>
           </sc-for>
+            <button class="chip chip-add" onClick="{{ addPersonFrom }}">{{ T.addPersonChip }}</button>
         </div>
         <p class="lbl">{{ T.visibility }}</p>
-        <div class="chips">
-          <button class="{{ rfPrivCls }}" onClick="{{ rfPriv }}">{{ T.privateMe }}</button>
-          <button class="{{ rfShareCls }}" onClick="{{ rfShare }}">{{ T.sharedWife }}</button>
-        </div>
+        <button class="{{ vis.rec.cls }}" onClick="{{ vis.rec.toggle }}" aria-pressed="{{ vis.rec.on }}">
+          <sc-if value="{{ vis.rec.on }}" hint-placeholder-val="{{ true }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></sc-if>
+          <sc-if value="{{ vis.rec.off }}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.6 5.1A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-2.6 3.5M6.6 6.6A17.4 17.4 0 0 0 2 12s3.6 7 10 7a10.4 10.4 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2M2 2l20 20"/></svg></sc-if>
+          <span class="vis-t"><b>{{ vis.rec.txt }}</b><span>{{ vis.rec.sub }}</span></span>
+        </button>
         <button class="btn" onClick="{{ saveRec }}">{{ T.save }}</button>
       </sc-if>
 
@@ -955,21 +2233,76 @@
           <sc-for list="{{ fWho }}" as="c" hint-placeholder-count="4">
             <button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button>
           </sc-for>
+            <button class="chip chip-add" onClick="{{ addPersonFrom }}">{{ T.addPersonChip }}</button>
         </div>
         <label class="lbl" for="aWhen">{{ whenLbl }}</label>
         <input id="aWhen" class="in" type="{{ whenType }}" value="{{ form.when }}" onChange="{{ setWhen }}">
+        <sc-if value="{{ showApptTime }}" hint-placeholder-val="{{ true }}">
+          <label class="lbl" for="aTm">{{ tmLbl }}</label>
+          <input id="aTm" class="in" type="time" value="{{ form.tm }}" onChange="{{ setTm }}">
+          <div class="remb"><p class="lbl" style="margin:0">🔔 {{ T.remT }}</p><p class="t2" style="font-size:11.5px">{{ remDefAppt }}</p><div class="chips"><sc-for list="{{ remAppt }}" as="c" hint-placeholder-count="4"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div></div>
+        </sc-if>
         <p class="lbl">{{ T.visibility }}</p>
-        <div class="chips">
-          <button class="{{ fSharedCls }}" onClick="{{ setShared }}">{{ T.sharedWife }}</button>
-          <button class="{{ fPrivateCls }}" onClick="{{ setPrivate }}">{{ T.privateMe }}</button>
-        </div>
+        <button class="{{ vis.appt.cls }}" onClick="{{ vis.appt.toggle }}" aria-pressed="{{ vis.appt.on }}">
+          <sc-if value="{{ vis.appt.on }}" hint-placeholder-val="{{ true }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></sc-if>
+          <sc-if value="{{ vis.appt.off }}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.6 5.1A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-2.6 3.5M6.6 6.6A17.4 17.4 0 0 0 2 12s3.6 7 10 7a10.4 10.4 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2M2 2l20 20"/></svg></sc-if>
+          <span class="vis-t"><b>{{ vis.appt.txt }}</b><span>{{ vis.appt.sub }}</span></span>
+        </button>
         <button class="btn" onClick="{{ saveAppt }}">{{ T.save }}</button>
+        <sc-if value="{{ editingAppt }}" hint-placeholder-val="{{ false }}">
+          <button class="btn-g" style="min-height:44px" onClick="{{ remindEdited }}">{{ T.remindFam }}</button>
+        </sc-if>
       </sc-if>
     </div>
   </sc-if>
 
   </sc-if>
 
+  <sc-if value="{{ isEmerg }}" hint-placeholder-val="{{ false }}">
+    <div class="emg" role="dialog" aria-label="{{ T.emergBtn }}">
+      <div class="emg-top"><span class="emg-badge">SOS</span><p class="grow emg-t">{{ T.emergTitle }}</p><button class="fs-x" onClick="{{ closeEmerg }}" aria-label="{{ T2.closeCard }}">✕</button></div>
+      <div class="emg-body">
+        <p class="emg-name">{{ em.name }}<sc-if value="{{ em.hasAge }}" hint-placeholder-val="{{ false }}"> <span>· {{ em.age }}</span></sc-if></p>
+        <div class="emg-blood"><span>{{ T.bloodLbl }}</span><b>{{ em.blood }}</b></div>
+        <div class="emg-row emg-al"><span>{{ T.allergyLbl }}</span><b>{{ em.allergies }}</b></div>
+        <div class="emg-row"><span>{{ T.chronicLbl }}</span><b>{{ em.chronic }}</b></div>
+        <div class="emg-row"><span>{{ T.currentMeds }}</span><b>{{ em.meds }}</b></div>
+        <sc-if value="{{ em.hasIns }}" hint-placeholder-val="{{ false }}"><div class="emg-row"><span>{{ T.insuranceLbl }}</span><b style="direction:ltr;text-align:right">{{ em.ins }}</b></div></sc-if>
+        <sc-if value="{{ em.hasNotes }}" hint-placeholder-val="{{ false }}"><div class="emg-row"><span>{{ T.noteOpt }}</span><b>{{ em.notes }}</b></div></sc-if>
+      </div>
+      <div class="emg-acts">
+        <sc-if value="{{ em.hasIce }}" hint-placeholder-val="{{ false }}"><a class="emg-b" href="{{ em.iceTel }}">📞 {{ em.ice }}</a></sc-if>
+        <a class="emg-b emg-b-red" href="tel:123">🚑 {{ T.ambulance }}</a>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isFull }}" hint-placeholder-val="{{ false }}">
+    <div class="fs" role="dialog" aria-label="{{ fv.title }}">
+      <div class="fs-top">
+        <button class="fs-x" onClick="{{ fv.closeFull }}" aria-label="{{ T2.closeCard }}">✕</button>
+        <p class="grow fs-t">{{ fv.title }} · {{ fv.whoPill }}</p>
+      </div>
+      <div class="fs-stage" onPointerDown="{{ fv.down }}" onPointerMove="{{ fv.move }}" onPointerUp="{{ fv.up }}" onPointerLeave="{{ fv.up }}" onContextMenu="{{ fv.menu }}">
+        <sc-if value="{{ fv.fHasImg }}" hint-placeholder-val="{{ false }}">
+          <img class="{{ fv.imgCls }}" src="{{ fv.fImg }}" alt="{{ fv.title }}">
+        </sc-if>
+        <sc-if value="{{ fv.fNoImg }}" hint-placeholder-val="{{ true }}">
+          <div class="{{ fv.wcCls }} wc-big">
+            <div class="wc-top"><div class="grow"><p class="wc-t">{{ fv.cardName }}</p><p class="wc-i">{{ fv.issuer }}</p></div><span class="wc-pill">{{ fv.whoPill }}</span></div>
+            <sc-if value="{{ fv.isBank }}" hint-placeholder-val="{{ false }}"><span class="wc-chip"></span></sc-if>
+            <div class="wc-bot"><span class="wc-n">{{ fv.faceNum }}</span><span class="wc-e">{{ fv.expShort }}</span></div>
+          </div>
+          <p class="fs-note">{{ T2.noPhoto }}</p>
+        </sc-if>
+      </div>
+      <div class="fs-bar">
+        <button class="{{ fv.frontCls }}" onClick="{{ fv.toFront }}">{{ T.front }}</button>
+        <button class="{{ fv.backCls }}" onClick="{{ fv.toBack }}">{{ T.back }}</button>
+        <button class="fs-b" onClick="{{ fv.rotate }}">⟳ {{ T2.rotate }}</button>
+        <button class="fs-b" onClick="{{ fv.copy }}">{{ T.copy }}</button>
+      </div>
+    </div>
+  </sc-if>
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
     <div class="toast" role="status">{{ toast }}</div>
   </sc-if>
