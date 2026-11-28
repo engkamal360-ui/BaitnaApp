@@ -4,6 +4,7 @@ import { shareText, localAlert, shareFile, listen, shareImage, pickPhone } from 
 import * as AI from './ai.js';
 import { localCommand } from './voice.js';
 import { installDrag } from './drag.js';
+import * as CR from './crypt.js';
 import { homeVals, healthVals, reportVals, shopAnalysisVals, dossierVals, todoVals, todoReminders, choreVals, choreReminders, extraReminders, maintDueList, setExtraFor } from './home.js';
 import { speak as nSpeak, scheduleTimer, cancelTimer, syncReminders, biometricUnlock, readImage, setupNative } from './native.js';
 
@@ -154,16 +155,20 @@ export default class Component extends DCLogic {
   }
   onFamily(fam) {
     this.setState({ family: fam, famReady: true });
+    this.famObj = fam;
     if (!fam) { this.stopKinds(); return; }
     const a = this.authUser;
     if (!a) return;
     if (!(fam.people || []).some((p) => p.id === a.uid)) {
       S.updateFamily(fam.id, { people: [...(fam.people || []), { id: a.uid, name: a.name || this.state.userName || a.email.split('@')[0], email: a.email }] }).catch(() => {});
     }
+    this.famObj = fam;
+    this.syncEnc(fam);
     if (this.fid === fam.id) return;
     this.stopKinds(); this.fid = fam.id;
     S.KINDS.forEach((kind) => {
       this.unsubs.push(S.watchKind(fam.id, a.uid, kind, (items) => {
+        if (kind === 'cards') { this.rawCards = items; this.ready.cards = true; this.applyCards(); return; }
         this.synced[kind] = new Map(items.map((i) => [String(i.id), sjson(i)]));
         this.ready[kind] = true;
         this.setState({ [kind]: items });
@@ -180,6 +185,66 @@ export default class Component extends DCLogic {
       this.setState({ nudgeSeen: Math.max(...fresh.map((n) => n.at)) });
     }));
   }
+  // ---- card encryption (family PIN) ----
+  encOn() { const f = this.famObj || this.state.family; return !!(S.enabled && f && f.cardCheck && f.cardSalt); }
+  async syncEnc(fam) {
+    const salt = fam && fam.cardCheck ? fam.cardSalt : null;
+    if (salt === this.encSalt && (fam && fam.id) === this.encFid) return;
+    this.encSalt = salt; this.encFid = fam && fam.id; this.cardKey = null;
+    if (salt && CR.supported()) { const k = await CR.loadKey(fam.id + ':' + salt); if (k && this.encSalt === salt && await CR.verify(k, fam.cardCheck)) this.cardKey = k; }
+    this.setState({ encTick: Date.now() });
+    this.applyCards();
+  }
+  async applyCards() {
+    const raw = this.rawCards; if (!raw) return;
+    const seq = (this.cardSeq = (this.cardSeq || 0) + 1);
+    const on = this.encOn(), key = this.cardKey;
+    const syn = new Map(), out = [];
+    for (const it of raw) {
+      let x = it, push = false;
+      if (on && it.enc) {
+        if (key) { try { x = await CR.openCard(key, it); } catch (e) { x = { ...it, _locked: true }; } }
+        else x = { ...it, _locked: true };
+      } else if (on && !it.enc) { push = !!key && CR.SECRET.some((k) => it[k]); } // old plaintext card → re-save encrypted
+      else if (!on && it.enc) { const { enc, ...rest } = it; x = rest; push = true; } // encryption was reset → drop unreadable blob
+      out.push(x); syn.set(String(x.id), push ? '' : sjson(x));
+    }
+    if (seq !== this.cardSeq) return;
+    this.synced.cards = syn;
+    const needPush = [...syn.values()].some((v) => v === '');
+    this.setState({ cards: out }, () => { if (needPush) this.pushSync(); });
+  }
+  pushCard(item) {
+    const fid = this.fid;
+    if (this.encOn()) {
+      if (item._locked) return;
+      if (!this.cardKey) return; // never upload card numbers in clear once the family turned encryption on
+      CR.sealCard(this.cardKey, item).then((sealed) => S.putItem(fid, 'cards', sealed)).catch((e) => console.warn('put', e));
+    } else { const { _locked, ...rest } = item; S.putItem(fid, 'cards', rest).catch((e) => console.warn('put', e)); }
+  }
+  async enableCardEnc(pin) {
+    const fam = this.state.family; if (!fam || !this.fid) return false;
+    const salt = CR.newSalt(), key = await CR.deriveKey(pin, salt), check = await CR.makeCheck(key);
+    await CR.saveKey(fam.id + ':' + salt, key);
+    this.encSalt = salt; this.encFid = fam.id; this.cardKey = key;
+    await S.updateFamily(fam.id, { cardSalt: salt, cardCheck: check });
+    this.famObj = { ...fam, cardSalt: salt, cardCheck: check };
+    this.setState({ family: this.famObj }, () => { (this.state.cards || []).forEach((c) => { if (!c._locked) this.synced.cards && this.synced.cards.set(String(c.id), ''); }); this.pushSync(); });
+    return true;
+  }
+  async unlockCardEnc(pin) {
+    const fam = this.famObj || this.state.family; if (!this.encOn()) return false;
+    const key = await CR.deriveKey(pin, fam.cardSalt);
+    if (!(await CR.verify(key, fam.cardCheck))) return false;
+    await CR.saveKey(fam.id + ':' + fam.cardSalt, key);
+    this.cardKey = key; this.setState({ encTick: Date.now() }); await this.applyCards();
+    this.pushSync();
+    return true;
+  }
+  async resetCardEnc() {
+    const fam = this.state.family; if (!fam) return;
+    await S.updateFamily(fam.id, { cardSalt: null, cardCheck: null });
+  }
   pushSync() {
     if (!this.fid || !this.authUser) return;
     const uid = this.authUser.uid;
@@ -191,7 +256,7 @@ export default class Component extends DCLogic {
         const item = { ...it, owner: it.owner || uid, shared: kind === 'shop' ? true : !!it.shared };
         const key = String(item.id), j = sjson(item);
         seen.add(key);
-        if (syn.get(key) !== j) { syn.set(key, j); S.putItem(this.fid, kind, item).catch((e) => console.warn('put', e)); }
+        if (syn.get(key) !== j) { if (kind === 'cards' && this.encOn() && !this.cardKey) return; syn.set(key, j); if (kind === 'cards') this.pushCard(item); else S.putItem(this.fid, kind, item).catch((e) => console.warn('put', e)); }
       });
       const gone = [...syn.keys()].filter((key) => !seen.has(key));
       if (gone.length > 2 && !(this.bulkUntil > Date.now())) { console.warn('skipped unexpected bulk delete', kind, gone.length); gone.forEach((key) => syn.delete(key)); return; }
@@ -403,7 +468,7 @@ export default class Component extends DCLogic {
 
     const T = {
       hello: this.myName() ? L('مرحباً يا ', 'Hi ') + this.myName() : L('مرحباً', 'Hello'), brand: L('بيتنا', 'Baitna'), sync: fam ? (s.online ? L('عائلة ', 'Family: ') + fam.name + L(' · متزامن', ' · synced') : L('غير متصل — ستتم المزامنة لاحقاً', 'Offline — will sync later')) : L('محفوظ على هاتفك', 'Saved on your phone'),
-      langBtn: L('EN', 'ع'), familyT: L('الأسرة', 'Family'), settingsT: L('الإعدادات', 'Settings'), addPersonChip: L('+ فرد', '+ Person'), addPersonT: L('إضافة فرد', 'Add a person'), langLbl: L('اللغة', 'Language'), catsBtn: L('الأقسام', 'Categories'), priLblT: L('الأولوية', 'Priority'), inTodayLbl: L('في «اليوم»', 'On Today'), catsNote: L('قسّم مهام البيت كما تحب. اضغط مطولاً على أي قسم واسحبه لترتيبه. مفتاح «في اليوم» يحدد ما يظهر لك أنت في شاشة اليوم (لا يؤثر على باقي الأسرة).', 'Organise tasks your way. “On Today” controls what YOU see on the Today screen.'), newCatPh: L('اسم القسم (مثلاً: الحديقة)', 'Category (e.g. Garden)'), emojiPh: L('🙂', '🙂'), choresT: L('مهام البيت', 'Household tasks'), chorePh: L('أضف مهمة للبيت… (مثلاً: تصليح الحنفية)', 'Add a household task…'), takeIt: L('عليّ', 'I’ll do it'), choresDoneT: L('تمّت مؤخراً', 'Recently done'), boardT: L('أبطال الشهر', 'This month’s heroes'), allChores: L('كل المهام', 'All tasks'), repLbl: L('تتكرر', 'Repeats'), dueOpt: L('قبل تاريخ (اختياري)', 'Due by (optional)'), choreHint: L('اضغط «عليّ» لتأخذ المهمة، و✓ عند الانتهاء. اضغط على المهمة لتعيينها لشخص أو جعلها تتكرر.', 'Tap “I’ll do it” to take a task and ✓ when done. Tap a task to assign or repeat it.'), todosT: L('مهامي اليوم', 'My day'), todoPh: L('أضف مهمة سريعة…', 'Add a quick task…'), todoHint: L('اضغط على المهمة لتحديد وقت تنبيه أو إرسالها لفرد من الأسرة', 'Tap a task to set a reminder time or send it to someone'), allDoneT: L('أنجزت كل مهامك 👏', 'All done 👏'), clearDoneT: L('مسح المنجز', 'Clear done'), whenLbl2: L('متى', 'When'), forLbl: L('لمن', 'For'), tmOpt: L('تنبيه في الساعة (اختياري)', 'Remind at (optional)'), zoomLbl: L('حجم العرض', 'Display size'), zoomOutA: L('تصغير', 'Smaller'), zoomInA: L('تكبير', 'Larger'), zoomHint: L('صغّر لترى محتوى أكثر في الشاشة، أو كبّر لقراءة أسهل', 'Smaller fits more on screen; larger is easier to read'), remT: L('تنبيه إضافي', 'Extra reminder'), dossierT: L('الملف الطبي', 'Medical file'), dossierS: L('صور التحاليل والأشعة والتقارير والروشتات', 'Results, scans, reports, prescriptions'), dosAddBtn: L('إضافة نتيجة أو صورة', 'Add a result or photo'),
+      langBtn: L('EN', 'ع'), familyT: L('الأسرة', 'Family'), settingsT: L('الإعدادات', 'Settings'), addPersonChip: L('+ فرد', '+ Person'), addPersonT: L('إضافة فرد', 'Add a person'), langLbl: L('اللغة', 'Language'), catsBtn: L('الأقسام', 'Categories'), encT: L('تشفير البطاقات', 'Encrypt cards'), encBanner: L('شفّر أرقام البطاقات وصورها برقم سري للأسرة', 'Encrypt card numbers & photos with a family PIN'), encOnTxt: L('أرقام البطاقات وصورها مشفّرة — لا يقرؤها أحد خارج أسرتك، ولا حتى خادم Firebase', 'Card numbers & photos are encrypted — nobody outside your family can read them, not even the server'), encIntro: L('اختر رقماً سرياً (٦ أرقام أو أكثر). ستُشفَّر أرقام البطاقات والـ IBAN والحسابات والصور على هاتفك قبل رفعها، فلا يستطيع أحد قراءتها بدون هذا الرقم.', 'Choose a PIN (6+ digits). Numbers, IBANs, accounts and photos are encrypted on your phone before upload.'), encWarn: L('⚠️ احفظ الرقم جيداً: لو نُسي لا يمكن استرجاع البطاقات. أخبر به أفراد الأسرة ليدخلوه مرة واحدة على هواتفهم.', '⚠️ Keep it safe: a forgotten PIN can’t be recovered. Share it with family members — they enter it once.'), pinPh: L('الرقم السري', 'PIN'), pin2Ph: L('أعد كتابة الرقم السري', 'Repeat PIN'), encGo: L('تفعيل التشفير', 'Turn on encryption'), needPinT: L('بطاقات الأسرة مشفّرة', 'Family cards are encrypted'), needPinS: L('أدخل الرقم السري للأسرة مرة واحدة على هذا الهاتف', 'Enter the family PIN once on this phone'), unlockGo: L('فتح', 'Unlock'), forgotPinT: L('نسيت الرقم السري؟', 'Forgot the PIN?'), priLblT: L('الأولوية', 'Priority'), inTodayLbl: L('في «اليوم»', 'On Today'), catsNote: L('قسّم مهام البيت كما تحب. اضغط مطولاً على أي قسم واسحبه لترتيبه. مفتاح «في اليوم» يحدد ما يظهر لك أنت في شاشة اليوم (لا يؤثر على باقي الأسرة).', 'Organise tasks your way. “On Today” controls what YOU see on the Today screen.'), newCatPh: L('اسم القسم (مثلاً: الحديقة)', 'Category (e.g. Garden)'), emojiPh: L('🙂', '🙂'), choresT: L('مهام البيت', 'Household tasks'), chorePh: L('أضف مهمة للبيت… (مثلاً: تصليح الحنفية)', 'Add a household task…'), takeIt: L('عليّ', 'I’ll do it'), choresDoneT: L('تمّت مؤخراً', 'Recently done'), boardT: L('أبطال الشهر', 'This month’s heroes'), allChores: L('كل المهام', 'All tasks'), repLbl: L('تتكرر', 'Repeats'), dueOpt: L('قبل تاريخ (اختياري)', 'Due by (optional)'), choreHint: L('اضغط «عليّ» لتأخذ المهمة، و✓ عند الانتهاء. اضغط على المهمة لتعيينها لشخص أو جعلها تتكرر.', 'Tap “I’ll do it” to take a task and ✓ when done. Tap a task to assign or repeat it.'), todosT: L('مهامي اليوم', 'My day'), todoPh: L('أضف مهمة سريعة…', 'Add a quick task…'), todoHint: L('اضغط على المهمة لتحديد وقت تنبيه أو إرسالها لفرد من الأسرة', 'Tap a task to set a reminder time or send it to someone'), allDoneT: L('أنجزت كل مهامك 👏', 'All done 👏'), clearDoneT: L('مسح المنجز', 'Clear done'), whenLbl2: L('متى', 'When'), forLbl: L('لمن', 'For'), tmOpt: L('تنبيه في الساعة (اختياري)', 'Remind at (optional)'), zoomLbl: L('حجم العرض', 'Display size'), zoomOutA: L('تصغير', 'Smaller'), zoomInA: L('تكبير', 'Larger'), zoomHint: L('صغّر لترى محتوى أكثر في الشاشة، أو كبّر لقراءة أسهل', 'Smaller fits more on screen; larger is easier to read'), remT: L('تنبيه إضافي', 'Extra reminder'), dossierT: L('الملف الطبي', 'Medical file'), dossierS: L('صور التحاليل والأشعة والتقارير والروشتات', 'Results, scans, reports, prescriptions'), dosAddBtn: L('إضافة نتيجة أو صورة', 'Add a result or photo'),
       dosEmptyT: L('الملف فارغ', 'Nothing here yet'), dosEmptyS: L('صوّر أي تحليل أو أشعة أو تقرير، ويبقى محفوظاً لكل الأسرة', 'Snap any lab result, scan or report — kept safely for the family'),
       dosTitleLbl: L('العنوان', 'Title'), dosTitlePh: L('مثلاً: صورة دم كاملة — معمل البرج', 'e.g. CBC — Al Borg lab'), dosPhotos: L('صوّر أو اختر الصفحات (يمكن أكثر من صفحة)', 'Snap or pick pages (several allowed)'),
       dosNoteLbl: L('ملاحظة (اختياري)', 'Note (optional)'), dosNotePh: L('مثلاً: الدكتور طلب إعادته بعد ٣ أشهر', 'e.g. repeat in 3 months'), sharePage: L('مشاركة الصفحة', 'Share page'), addPage: L('صفحة', 'Page'), delPage: L('حذف الصفحة', 'Delete page'), delAllPages: L('حذف الملف كله', 'Delete all'), fromContacts: L('اختر من جهات الاتصال', 'Pick from contacts'), searchPh: L('ابحث بالاسم أو الرقم أو المجموعة', 'Search name, number or group'), groupsBtn: L('المجموعات', 'Groups'), noMatchT: L('لا توجد نتائج', 'No results'), groupLbl: L('المجموعة', 'Group'), newGroup: L('مجموعة جديدة', 'New group'), groupPh: L('اسم المجموعة (مثلاً: مدرسة الأولاد)', 'Group name (e.g. Kids’ school)'),
@@ -503,7 +568,7 @@ export default class Component extends DCLogic {
       setPriceBtn: L('+ السعر', '+ Price'), exportBtn: L('تصدير المصروفات', 'Export expenses'), exportFile: L('تصدير ملف Excel (CSV)', 'Export Excel file (CSV)'),
       from: L('من', 'From'), to: L('إلى', 'To'), receiptBtn: L('مسح إيصال', 'Scan a receipt'), dictBtn: L('إملاء', 'Dictate'),
       dictHint: L('تكلّم أو اكتب بشكل طبيعي، وأنا أسجّله في مكانه. أمثلة: «عندي كشف أسنان يوم الخميس الساعة ٥ ونص» — «٢ كيلو طماطم وكيس حليب» — «يوسف ياخد شراب الكحة مرتين في اليوم» — «شغّل مؤقت للمكرونة ١٠ دقائق»', 'Speak or type naturally and I will file it. E.g. “Dentist on Thursday at 5:30”, “2 kg tomatoes and a bag of milk”, “Youssef takes cough syrup twice a day”, “Start a 10-minute pasta timer”'),
-      mic: L('تحدّث', 'Speak'), understand: L('افهمها', 'Understand'), reading: L('جارٍ القراءة…', 'Reading…'),
+      mic: L('تحدّث', 'Speak'), understand: L('افهمها', 'Understand'), reading: L('جارٍ القراءة على هاتفك… (أول مرة تأخذ ثوانٍ)', 'Reading on your phone… (first time takes a few seconds)'),
       reviewHintR: L('راجع الأصناف والأسعار، والأصناف الموجودة في قائمتك ستُعلَّم كمُشتراة', 'Check items and prices; items already on your list get checked off'),
       reviewHintL: L('راجع ما فهمته ثم احفظه — اضغط على الاسم لتعديله', 'Check what I understood, then save — tap a name to edit it'), noDateWarn: L('بلا تاريخ', 'No date'), addExp: L('+ مصروف آخر (إيجار، فواتير…)', '+ Other expense (rent, bills…)'), fixedExp: L('مصروفات ثابتة وأقساط وجمعيات', 'Fixed, installments & gam’eya'), duesT: L('مستحقات قريبة', 'Coming up to pay'), recentExpT: L('آخر المصروفات', 'Recent expenses'),
       expWhat: L('البند', 'What for'), expWhatPh: L('مثلاً: إيجار الشقة / فاتورة الكهرباء', 'e.g. Rent / electricity bill'), expAmt: L('المبلغ', 'Amount'), expCat: L('النوع', 'Category'), expDate: L('التاريخ', 'Date'), paidBy: L('دفعها', 'Paid by'),
@@ -853,7 +918,7 @@ export default class Component extends DCLogic {
       return {
         id: k.id, type: k.type, title: k.type + (k.issuer ? ' — ' + k.issuer : ''), cardName: k.type, issuer: k.issuer || '', hasIssuer: !!k.issuer,
         who: WHO[k.who] || k.who, expiry: expTxt(k.exp), expShort: k.exp ? (/^\d{4}-\d{2}$/.test(k.exp) ? num(k.exp.slice(5)) + '/' + num(k.exp.slice(2, 4)) : num(k.exp.slice(5, 7)) + '/' + num(k.exp.slice(2, 4))) : '',
-        num: (bank && !reveal) ? maskNum(k.num) : (k.num || '—'), faceNum: pretty, isBank: bank && !!raw, canReveal: bank && (raw.length > 4 || !!ib || !!k.acct),
+        num: (bank && !reveal) ? maskNum(k.num) : (k.num || '—'), faceNum: k._locked ? '🔒 •••• ••••' : pretty, isBank: bank && !!raw, canReveal: bank && (raw.length > 4 || !!ib || !!k.acct),
         hasIban: !!ib, ibanTxt: reveal ? ibanPretty(ib) : (ib ? ib.slice(0, 4) + ' •••• •••• ' + ib.slice(-4) : ''),
         copyIban: () => { this.copyText(ib); this.flash(L('تم نسخ IBAN ✓', 'IBAN copied ✓')); },
         hasAcct: !!k.acct, acctTxt: reveal ? String(k.acct) : (k.acct ? '•••• ' + String(k.acct).slice(-4) : ''),
@@ -874,7 +939,7 @@ export default class Component extends DCLogic {
         full: () => this.setState({ fullCard: { id: k.id, face: this.state.face, rot: 0 } }),
         copy: copyNum,
         copyAll: () => { this.copyText(cardDetails(k)); this.flash(L('تم نسخ بيانات البطاقة ✓', 'Card details copied ✓')); },
-        edit: () => this.setState({ sheet: 'card', cardForm: { kind: 'id', ...k } }),
+        edit: () => { if (k._locked) { this.flash(L('هذه البطاقة مشفّرة برقم سري آخر', 'This card is locked with another PIN')); return; } const { _locked, ...kk } = k; this.setState({ sheet: 'card', cardForm: { kind: 'id', ...kk } }); },
         del: () => { if (!window.confirm(L('حذف هذه البطاقة؟', 'Delete this card?'))) return; this.setState({ cards: this.state.cards.filter((x) => x.id !== k.id), openCard: null }); }
       };
     };
@@ -1142,7 +1207,7 @@ export default class Component extends DCLogic {
     if (s.sheet === 'rec' && s.rf.editId) sheetTitles.rec = L('تعديل السجل', 'Edit record');
     const HX = { isHid, AI, localAlert, pickPhone, shareImage, s, L, num, money, isAr, WHO, PIDS, PEOPLE, myId, pCls, longDateS, readImage, tx, expTxt, daysTo, expDay, shareText, SC, EC, scName, ecName, budget };
     const HV = homeVals(this, HX), HL = healthVals(this, HX), RP = reportVals(this, HX), SA = shopAnalysisVals(this, HX), DZ = dossierVals(this, HX), TDO = todoVals(this, HX), CH = choreVals(this, HX);
-    Object.assign(sheetTitles, HV.homeSheetTitles, DZ.dosTitles, { todo: TDO.todoTitle, chore: CH.choreTitle, chcats: CH.chcatsTitle }, { hp: L('الملف الصحي', 'Health profile'), measures: L('القياسات', 'Measurements'), report: L('تقرير الشهر', 'Monthly report'), shopAn: L('تحليل المشتريات', 'Shopping analysis') });
+    Object.assign(sheetTitles, HV.homeSheetTitles, DZ.dosTitles, { todo: TDO.todoTitle, chore: CH.choreTitle, chcats: CH.chcatsTitle, cardEnc: L('تشفير البطاقات', 'Encrypt cards') }, { hp: L('الملف الصحي', 'Health profile'), measures: L('القياسات', 'Measurements'), report: L('تقرير الشهر', 'Monthly report'), shopAn: L('تحليل المشتريات', 'Shopping analysis') });
     return {
       T, lang, appCls: 'app th-' + theme + (isAr ? ' dir-rtl' : ' dir-ltr'),
       appStyle: (() => { const z = this.myPrefs().zoom || 1; try { if (document.documentElement.style.zoom !== String(z)) document.documentElement.style.zoom = String(z); } catch (e) {} return ''; })(),
@@ -1309,10 +1374,28 @@ export default class Component extends DCLogic {
       isCal: s.sheet === 'cal', calCells, calHead, calPrev: shiftMonth(-1), calNext: shiftMonth(1),
       calTitle: (() => { try { return first.toLocaleDateString(isAr ? 'ar-EG' : 'en-US', { month: 'long', year: 'numeric' }); } catch (e) { return calMonth; } })(),
       calToday: () => this.setState({ selDay: TODAY, calMonth: null }), cats, scopes,
-      locked: s.locked, unlocked: !s.locked,
+      locked: s.locked, unlocked: !s.locked && !(this.encOn() && !this.cardKey),
+      needPin: !s.locked && this.encOn() && !this.cardKey, encOn: this.encOn() && !!this.cardKey, canEnc: !!(S.enabled && fam && !this.encOn() && CR.supported()),
+      pinIn: s.pinIn || '', onPin: (e) => this.setState({ pinIn: e.target.value.replace(/\D/g, '').slice(0, 12), pinErr: '' }), pinErr: s.pinErr || '', hasPinErr: !!s.pinErr, pinBusy: !!s.pinBusy,
+      pin2: s.pin2 || '', onPin2: (e) => this.setState({ pin2: e.target.value.replace(/\D/g, '').slice(0, 12), pinErr: '' }),
+      openEnc: () => this.setState({ sheet: 'cardEnc', pinIn: '', pin2: '', pinErr: '' }), isCardEnc: s.sheet === 'cardEnc',
+      doEnableEnc: () => { const p = this.state.pinIn || '', p2 = this.state.pin2 || '';
+        if (p.length < 6) { this.setState({ pinErr: L('الرقم السري ٦ أرقام على الأقل', 'At least 6 digits') }); return; }
+        if (p !== p2) { this.setState({ pinErr: L('الرقمان غير متطابقين', 'PINs don’t match') }); return; }
+        this.setState({ pinBusy: true });
+        this.enableCardEnc(p).then(() => { this.setState({ pinBusy: false, sheet: null, pinIn: '', pin2: '' }); this.flash(L('تم تشفير البطاقات 🔐 أخبر أفراد الأسرة بالرقم السري', 'Cards encrypted 🔐 share the PIN with your family'), 3500); })
+          .catch((e) => { console.warn(e); this.setState({ pinBusy: false, pinErr: L('تعذّر التفعيل — تأكد من الاتصال بالإنترنت', 'Could not enable — check your connection') }); }); },
+      doUnlockEnc: () => { const p = this.state.pinIn || ''; if (!p) return; this.setState({ pinBusy: true });
+        this.unlockCardEnc(p).then((ok) => this.setState(ok ? { pinBusy: false, pinIn: '' } : { pinBusy: false, pinErr: L('الرقم السري غير صحيح', 'Wrong PIN') })).catch(() => this.setState({ pinBusy: false, pinErr: L('حدث خطأ — حاول مرة أخرى', 'Something went wrong') })); },
+      onPinKey: (e) => { if (e.key === 'Enter') { if (this.state.sheet === 'cardEnc') return; e.target.blur(); } },
+      forgotPin: () => {
+        if (!window.confirm(L('لا يمكن استرجاع الرقم السري، ولا يستطيع أحد (ولا نحن) فك تشفير البطاقات بدونه.\n\nإعادة الضبط تحذف أرقام البطاقات وصورها المشفرة وتُبقي أنواعها وتواريخ انتهائها، ثم تستطيع إدخالها من جديد.\n\nهل تريد المتابعة؟', 'The PIN cannot be recovered. Resetting deletes encrypted numbers and photos (types and expiry dates stay). Continue?'))) return;
+        if (!window.confirm(L('تأكيد أخير: حذف بيانات البطاقات المشفرة لكل الأسرة؟', 'Final check: delete encrypted card data for the whole family?'))) return;
+        this.resetCardEnc().then(() => this.flash(L('أُعيد ضبط التشفير — أدخل أرقام البطاقات من جديد', 'Encryption reset — re-enter card numbers'), 3500)).catch(() => this.flash(L('تعذّر — تأكد من الاتصال', 'Failed — check connection')));
+      },
       unlock: () => { biometricUnlock(L('افتح البطاقات', 'Unlock cards'), L('إلغاء', 'Cancel')).then((ok) => { if (ok) this.setState({ locked: false }); }); },
       cardAlerts, noCards: s.cards.length === 0,
-      openCardForm: () => this.setState({ sheet: 'card', cardForm: { id: null, kind: 'id', type: '', who: myId, num: '', exp: '', front: '', back: '', shared: true } }),
+      openCardForm: () => (this.encOn() && !this.cardKey) ? this.flash(L('أدخل الرقم السري للبطاقات أولاً', 'Enter the cards PIN first')) : this.setState({ sheet: 'card', cardForm: { id: null, kind: 'id', type: '', who: myId, num: '', exp: '', front: '', back: '', shared: true } }),
       cf, isCardSheet: s.sheet === 'card',
       cfKinds: KINDS.map(([id, name]) => ({ name, cls: cfKind === id ? 'chip-on' : 'chip', sel: () => setCf({ kind: id, type: '', shared: id !== 'bank', exp: '' }) })),
       cfIsBank: cfKind === 'bank', cfNotBank: cfKind !== 'bank',
@@ -1327,7 +1410,7 @@ export default class Component extends DCLogic {
       noCardMatch: s.cards.length > 0 && visCards.length === 0,
       isFull: !!fullView, fv: fullView || { fImg: '', fHasImg: false, fNoImg: true },
       cardHint: L('اضغط على البطاقة لفتحها، واضغط مرة أخرى لعرضها بملء الشاشة. اضغط مطولاً لنسخ الرقم.', 'Tap a card to open it, tap again for full screen. Long-press to copy the number.'),
-      cardSafe: L('🔒 بيانات البطاقات لا تُرسل أبداً للذكاء الاصطناعي، ومحمية بالبصمة', '🔒 Card data is never sent to AI and is protected by your fingerprint'),
+      cardSafe: L('🔒 بيانات البطاقات لا تُقرأ آلياً ولا تُرسل لأي خدمة، ومحمية بالبصمة', '🔒 Card data is never sent to AI and is protected by your fingerprint'),
       T2: { copyAll: L('نسخ كل البيانات', 'Copy all details'), rotate: L('تدوير', 'Rotate'), fullscreen: L('ملء الشاشة', 'Full screen'), closeCard: L('إغلاق', 'Close'), noMatch: L('لا توجد بطاقات بهذا الفلتر', 'No cards match this filter'), noPhoto: L('لا توجد صورة — أضفها من «تعديل»', 'No photo — add one from “Edit”') },
       cfTypes: ({
         id: [L('بطاقة الرقم القومي', 'National ID'), L('جواز السفر', 'Passport'), L('رخصة القيادة', 'Driving license'), L('رخصة السيارة', 'Car license'), L('شهادة الميلاد', 'Birth certificate'), L('الإقامة', 'Residence permit')],
@@ -1459,11 +1542,10 @@ export default class Component extends DCLogic {
       aiOn: AI.aiAvailable, aiBusy: s.aiBusy,
       scanReceipt: (e) => {
         const f = e.target.files && e.target.files[0]; if (!f) return;
-        if (!AI.aiAvailable) { this.flash(L('قراءة الإيصال تعمل في التطبيق على الهاتف', 'Receipt reading works in the phone app')); return; }
         this.setState({ aiBusy: true, sheet: 'review', review: null });
         readImage(f, 1600).then((img) => AI.readReceipt(img, CAT.map((c) => tx(c.name))))
           .then((r) => this.setState({ aiBusy: false, review: { mode: 'receipt', store: r.store || '', date: r.date || todayISO(), items: (r.items || []).map((x, i) => ({ k: i, on: true, name: x.name || '', qty: x.qty || null, unit: x.unit || null, price: x.price != null ? String(x.price) : '', cat: x.cat || guessCat(x.name || '') })) } }))
-          .catch((err) => { console.warn(err); this.setState({ aiBusy: false, sheet: null }); this.flash(L('تعذرت قراءة الإيصال. تأكد من تفعيل AI Logic في Firebase وجودة الصورة', 'Could not read the receipt. Check AI Logic is enabled and the photo is clear')); });
+          .catch((err) => { console.warn(err); this.setState({ aiBusy: false, sheet: null }); this.flash(L('لم أستطع قراءة الإيصال — صوّره من قريب وفي إضاءة جيدة وبشكل مستقيم', 'Couldn’t read the receipt — shoot it close, straight and well lit'), 3500); });
       },
       startDictation: () => {
         this.setState({ sheet: 'dict', listening: true });
@@ -1486,11 +1568,7 @@ export default class Component extends DCLogic {
           return null;
         }).filter(Boolean);
         const local = () => toRows(localCommand(txt, ctx, guessCat));
-        if (!AI.aiAvailable) { this.setState({ sheet: 'review', review: { mode: 'cmd', items: local() } }); return; }
-        this.setState({ aiBusy: true, sheet: 'review', review: null });
-        AI.parseCommand(txt, ctx)
-          .then((r) => { const rows = toRows(r); this.setState({ aiBusy: false, review: { mode: 'cmd', items: rows.length ? rows : local() } }); })
-          .catch(() => this.setState({ aiBusy: false, review: { mode: 'cmd', items: local() } }));
+        this.setState({ sheet: 'review', review: { mode: 'cmd', items: local() } }); // understood on the phone itself
       },
       reviewIsCmd: !!(s.review && s.review.mode !== 'receipt'),
       hasReviewRows: !!(s.review && s.review.items.length),

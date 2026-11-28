@@ -616,7 +616,19 @@
           <p class="t2">{{ T.lockHint }}</p>
         </div>
       </sc-if>
+      <sc-if value="{{ needPin }}" hint-placeholder-val="{{ false }}">
+        <div class="card enc-lock">
+          <div class="enc-ic">🔐</div>
+          <p class="h" style="margin:0;text-align:center">{{ T.needPinT }}</p>
+          <p class="t2" style="margin:0;text-align:center;font-size:12.5px">{{ T.needPinS }}</p>
+          <input class="in pin-in" type="password" inputmode="numeric" autocomplete="off" placeholder="{{ T.pinPh }}" value="{{ pinIn }}" onChange="{{ onPin }}">
+          <sc-if value="{{ hasPinErr }}" hint-placeholder-val="{{ false }}"><p class="pin-err">{{ pinErr }}</p></sc-if>
+          <button class="btn" onClick="{{ doUnlockEnc }}" disabled="{{ pinBusy }}">{{ T.unlockGo }}</button>
+          <button class="lnk" onClick="{{ forgotPin }}" style="align-self:center">{{ T.forgotPinT }}</button>
+        </div>
+      </sc-if>
       <sc-if value="{{ unlocked }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ canEnc }}" hint-placeholder-val="{{ false }}"><button class="enc-ban" onClick="{{ openEnc }}"><span>🔐</span><span class="grow">{{ T.encBanner }}</span><span>‹</span></button></sc-if>
         <sc-if value="{{ noCards }}" hint-placeholder-val="{{ false }}">
           <p class="t2" style="text-align:center;padding:24px 0">{{ T.noCards }}</p>
         </sc-if>
@@ -766,6 +778,7 @@
         <p class="t2" style="text-align:center;font-size:12px">{{ cardHint }}</p>
         <p class="t2" style="text-align:center;font-size:11.5px;margin-top:-6px">{{ cardSafe }}</p>
         <button class="btn-g" style="min-height:42px" onClick="{{ openCardForm }}">{{ T.addCard }}</button>
+        <sc-if value="{{ encOn }}" hint-placeholder-val="{{ false }}"><p class="enc-note">🔒 {{ T.encOnTxt }}</p></sc-if>
       </sc-if>
     </sc-if>
 
@@ -1514,6 +1527,14 @@
         <p class="lbl">{{ T.repLbl }}</p>
         <div class="chips"><sc-for list="{{ chfv.rep }}" as="c" hint-placeholder-count="3"><button class="{{ c.cls }}" onClick="{{ c.sel }}">{{ c.name }}</button></sc-for></div>
         <button class="btn" onClick="{{ saveChore }}">{{ T.save }}</button>
+      </sc-if>
+      <sc-if value="{{ isCardEnc }}" hint-placeholder-val="{{ false }}">
+        <p class="t2" style="font-size:12.5px;line-height:1.7;margin:0">{{ T.encIntro }}</p>
+        <input class="in pin-in" type="password" inputmode="numeric" autocomplete="new-password" placeholder="{{ T.pinPh }}" value="{{ pinIn }}" onChange="{{ onPin }}">
+        <input class="in pin-in" type="password" inputmode="numeric" autocomplete="new-password" placeholder="{{ T.pin2Ph }}" value="{{ pin2 }}" onChange="{{ onPin2 }}">
+        <sc-if value="{{ hasPinErr }}" hint-placeholder-val="{{ false }}"><p class="pin-err">{{ pinErr }}</p></sc-if>
+        <p class="enc-warn">{{ T.encWarn }}</p>
+        <button class="btn" onClick="{{ doEnableEnc }}" disabled="{{ pinBusy }}">🔐 {{ T.encGo }}</button>
       </sc-if>
       <sc-if value="{{ isChCats }}" hint-placeholder-val="{{ false }}">
         <p class="t2" style="font-size:12px;margin:0">{{ T.catsNote }}</p>

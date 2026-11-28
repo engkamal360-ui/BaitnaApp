@@ -416,9 +416,8 @@ export function homeVals(c, h) {
     hfSet: {}, // placeholder
     snapKm: (e) => {
       const f = e.target.files && e.target.files[0]; if (!f) return;
-      if (!h.AI || !h.AI.aiAvailable) { c.flash(L('قراءة صورة العداد تعمل في التطبيق على الهاتف — اكتب الرقم الآن', 'Reading the photo works in the phone app — type the number for now'), 3000); return; }
       setHf({ reading: true });
-      readImage(f, 1400).then((img) => h.AI.readOdometer(img)).then((r) => {
+      readImage(f, 1600).then((img) => h.AI.readOdometer(img, ((c.state.cars || []).find((x) => x.id === c.state.hf.carId) || {}).km)).then((r) => {
         const km = r && r.km != null ? Math.round(Number(r.km)) : null;
         if (km == null || isNaN(km)) { setHf({ reading: false }); c.flash(L('لم أستطع قراءة العداد — قرّب الصورة أو اكتب الرقم', 'Couldn’t read it — get closer or type it'), 3000); return; }
         const car = (c.state.cars || []).find((x) => x.id === c.state.hf.carId);

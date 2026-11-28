@@ -586,3 +586,11 @@ textarea.dict{resize:vertical;min-height:90px;font:inherit}
 .pri-pop{display:flex;gap:6px;padding:4px 0 6px;padding-inline-start:34px;flex-wrap:wrap}
 .pri-pop .chip,.pri-pop .chip-on{min-height:30px;padding:4px 12px;font-size:12.5px}
 .pri-c-h.chip-on{background:var(--warn);border-color:var(--warn);color:#fff}
+
+.enc-lock{display:flex;flex-direction:column;gap:10px;padding:22px 18px;align-items:stretch}
+.enc-ic{font-size:34px;text-align:center}
+.pin-in{text-align:center;letter-spacing:6px;font-size:20px;direction:ltr}
+.pin-err{color:var(--warn);font-size:12.5px;margin:0;text-align:center}
+.enc-ban{display:flex;align-items:center;gap:10px;width:100%;border:1px dashed color-mix(in srgb,var(--acc) 55%,transparent);background:color-mix(in srgb,var(--acc) 7%,transparent);color:var(--ink);border-radius:14px;padding:10px 12px;font:inherit;font-size:13px;text-align:start}
+.enc-note{font-size:11.5px;color:var(--sub);text-align:center;margin:4px 0 0}
+.enc-warn{font-size:12px;line-height:1.7;margin:0;padding:8px 10px;border-radius:10px;background:var(--warn-soft);color:var(--warn-ink)}
